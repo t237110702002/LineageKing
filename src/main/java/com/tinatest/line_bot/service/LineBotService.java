@@ -1,6 +1,7 @@
 package com.tinatest.line_bot.service;
 
 import com.linecorp.bot.client.LineMessagingClient;
+import com.linecorp.bot.model.Broadcast;
 import com.linecorp.bot.model.PushMessage;
 import com.linecorp.bot.model.ReplyMessage;
 import com.linecorp.bot.model.event.MessageEvent;
@@ -47,16 +48,35 @@ public class LineBotService {
 
         String receivedMessage = event.getMessage().getText();
         String replyToken = event.getReplyToken();
+
+        if (receivedMessage.equals("push")) {
+            Broadcast broadcast = new Broadcast(new TextMessage("推播測試喔喔喔喔喔喔"));
+            return client.broadcast(broadcast).get();
+        }
+
+
         List<Message> messages = null;
         switch (receivedMessage) {
             case "Hi":
-                messages = Arrays.asList(new TextMessage("HIHIHI"));
+            case "hi":
+            case "嗨":
+            case "你好":
+                messages = Arrays.asList(new TextMessage("HI HI HI 我是Tina小幫手"));
                 break;
             default:
                 messages = Arrays.asList(new TextMessage("測試預設訊息"));
                 break;
         }
-        return client.replyMessage(new ReplyMessage(event.getReplyToken(), messages)).get();
-
+        return client.replyMessage(new ReplyMessage(replyToken, messages)).get();
     }
+
+//    public BotApiResponse push(MessageEvent<TextMessageContent> event) throws IOException, ExecutionException, InterruptedException {
+//
+//        String[] userIds = {"U848d0fb8269d111a96875ae3cb365ba6"};
+//
+//        String receivedMessage = event.getMessage().getText();
+//        String replyToken = event.getReplyToken();
+//
+//    }
+
 }
