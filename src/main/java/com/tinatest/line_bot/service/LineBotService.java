@@ -5,10 +5,13 @@ import com.linecorp.bot.model.Broadcast;
 import com.linecorp.bot.model.PushMessage;
 import com.linecorp.bot.model.ReplyMessage;
 import com.linecorp.bot.model.event.MessageEvent;
+import com.linecorp.bot.model.event.message.StickerMessageContent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
 import com.linecorp.bot.model.message.Message;
+import com.linecorp.bot.model.message.StickerMessage;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.model.response.BotApiResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -49,11 +52,12 @@ public class LineBotService {
         String receivedMessage = event.getMessage().getText();
         String replyToken = event.getReplyToken();
 
-        if (receivedMessage.equals("push")) {
-            Broadcast broadcast = new Broadcast(new TextMessage("推播測試喔喔喔喔喔喔"));
+        if (receivedMessage.startsWith("push:")) {
+            String pushMsg = StringUtils.substringAfter(receivedMessage, "push:");
+
+            Broadcast broadcast = new Broadcast(new TextMessage(pushMsg));
             return client.broadcast(broadcast).get();
         }
-
 
         List<Message> messages = null;
         switch (receivedMessage) {
@@ -64,10 +68,16 @@ public class LineBotService {
                 messages = Arrays.asList(new TextMessage("HI HI HI 我是Tina小幫手"));
                 break;
             default:
-                messages = Arrays.asList(new TextMessage("測試預設訊息"));
+                messages = Arrays.asList(new TextMessage("測試預設訊息"), new TextMessage("第二則?"));
                 break;
         }
         return client.replyMessage(new ReplyMessage(replyToken, messages)).get();
+    }
+
+    public void handleSticker(String replyToken, StickerMessageContent content) {
+
+        client.replyMessage(new ReplyMessage(replyToken, new StickerMessage(
+                        content.getPackageId(), content.getStickerId())));
     }
 
 //    public BotApiResponse push(MessageEvent<TextMessageContent> event) throws IOException, ExecutionException, InterruptedException {
@@ -78,5 +88,9 @@ public class LineBotService {
 //        String replyToken = event.getReplyToken();
 //
 //    }
+
+    public void replyText(String replyToken, String message) {
+        client.replyMessage(new ReplyMessage(replyToken, new TextMessage(message)));
+    }
 
 }

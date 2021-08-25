@@ -28,28 +28,28 @@ public class LineBotController {
     @Autowired
     private LineBotService lineBotService;
 
-    @PostMapping("/push")
-    public ResponseEntity printHello(MessageEvent<TextMessageContent> event) {
-
-        System.out.println("event: " + event);
-//        BotApiResponse response = lineBotService.reply(event);
+//    @PostMapping("/push")
+//    public ResponseEntity printHello(MessageEvent<TextMessageContent> event) {
 //
-//        final LineMessagingClient client = LineMessagingClient
-//                .builder(ACCESS_TOKEN)
-//                .build();
-
-        TextMessage textMessage = new TextMessage("hello");
-        PushMessage pushMessage = new PushMessage("userId", textMessage);
-        BotApiResponse botApiResponse;
-        try {
-            botApiResponse = lineBotService.reply(event);
-            System.out.println("Sent messages: " + botApiResponse);
-
-        } catch (InterruptedException | ExecutionException | IOException e) {
-            e.printStackTrace();
-        }
-        return ResponseEntity.ok("Call back success!");
-    }
+//        System.out.println("event: " + event);
+////        BotApiResponse response = lineBotService.reply(event);
+////
+////        final LineMessagingClient client = LineMessagingClient
+////                .builder(ACCESS_TOKEN)
+////                .build();
+//
+//        TextMessage textMessage = new TextMessage("hello");
+//        PushMessage pushMessage = new PushMessage("userId", textMessage);
+//        BotApiResponse botApiResponse;
+//        try {
+//            botApiResponse = lineBotService.reply(event);
+//            System.out.println("Sent messages: " + botApiResponse);
+//
+//        } catch (InterruptedException | ExecutionException | IOException e) {
+//            e.printStackTrace();
+//        }
+//        return ResponseEntity.ok("Call back success!");
+//    }
 
 
 }
