@@ -10,8 +10,8 @@
 	</parent>
 	<groupId>com.tinatest</groupId>
 	<artifactId>line_bot</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<version>0.0.1</version>
+	<packaging>jar</packaging>
 	<name>line_bot</name>
 	<description>Demo project for LINE Bot</description>
 	<properties>
@@ -74,11 +74,15 @@
 		</resources>
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
+				<groupId>com.heroku.sdk</groupId>
+				<artifactId>heroku-maven-plugin</artifactId>
+				<version>3.0.3</version>
 				<configuration>
-				<source>${java.version}</source>
-				<target>${java.version}</target>
+					<appName>line-bot-lineageking</appName>
+					<processTypes>
+						<web>java $JAVA_OPTS -cp target/classes:target/dependency/* Main</web>
+<!--						<web>java $JAVA_OPTS -jar -Dserver.port=$PORT target/${project.artifactId}-${project.version}.jar</web>-->
+					</processTypes>
 				</configuration>
 			</plugin>
 <!--			<plugin>-->
