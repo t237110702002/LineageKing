@@ -28,7 +28,7 @@ public class LineBotController {
     @Autowired
     private LineBotService lineBotService;
 
-    @PostMapping("/callback")
+    @PostMapping("/push")
     public ResponseEntity printHello(MessageEvent<TextMessageContent> event) {
 
         System.out.println("event: " + event);
