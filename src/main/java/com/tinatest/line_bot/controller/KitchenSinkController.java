@@ -199,15 +199,15 @@ public class KitchenSinkController {
     public void handleVideoPlayCompleteEvent(VideoPlayCompleteEvent event) throws IOException {
         log.info("Got video play complete: tracking id={}", event.getVideoPlayComplete().getTrackingId());
         this.replyText(event.getReplyToken(),
-                       "You played " + event.getVideoPlayComplete().getTrackingId());
+                "You played " + event.getVideoPlayComplete().getTrackingId());
     }
 
     @EventMapping
     public void handleFileMessageEvent(MessageEvent<FileMessageContent> event) {
         this.reply(event.getReplyToken(),
-                   new TextMessage(String.format("Received '%s'(%d bytes)",
-                                                 event.getMessage().getFileName(),
-                                                 event.getMessage().getFileSize())));
+                new TextMessage(String.format("Received '%s'(%d bytes)",
+                        event.getMessage().getFileName(),
+                        event.getMessage().getFileSize())));
     }
 
     @EventMapping
@@ -236,8 +236,8 @@ public class KitchenSinkController {
     public void handlePostbackEvent(PostbackEvent event) {
         String replyToken = event.getReplyToken();
         this.replyText(replyToken,
-                       "Got postback data " + event.getPostbackContent().getData() + ", param " + event
-                               .getPostbackContent().getParams().toString());
+                "Got postback data " + event.getPostbackContent().getData() + ", param " + event
+                        .getPostbackContent().getParams().toString());
     }
 
     @EventMapping
@@ -250,15 +250,15 @@ public class KitchenSinkController {
     public void handleMemberJoined(MemberJoinedEvent event) {
         String replyToken = event.getReplyToken();
         this.replyText(replyToken, "Got memberJoined message " + event.getJoined().getMembers()
-                                                                      .stream().map(Source::getUserId)
-                                                                      .collect(Collectors.joining(",")));
+                .stream().map(Source::getUserId)
+                .collect(Collectors.joining(",")));
     }
 
     @EventMapping
     public void handleMemberLeft(MemberLeftEvent event) {
         log.info("Got memberLeft message: {}", event.getLeft().getMembers()
-                                                    .stream().map(Source::getUserId)
-                                                    .collect(Collectors.joining(",")));
+                .stream().map(Source::getUserId)
+                .collect(Collectors.joining(",")));
     }
 
     @EventMapping
@@ -307,7 +307,7 @@ public class KitchenSinkController {
         final MessageContentResponse response;
         try {
             response = lineBlobClient.getMessageContent(messageId)
-                                     .get();
+                    .get();
         } catch (InterruptedException | ExecutionException e) {
             reply(replyToken, new TextMessage("Cannot get image: " + e.getMessage()));
             throw new RuntimeException(e);
@@ -326,11 +326,11 @@ public class KitchenSinkController {
         final String text = content.getText();
 
         log.info("Got text message from replyToken:{}: text:{} emojis:{}", replyToken, text,
-                 content.getEmojis());
+                content.getEmojis());
         switch (text) {
             case "profile": {
                 log.info("Invoking 'profile' command: source:{}",
-                         event.getSource());
+                        event.getSource());
                 final String userId = event.getSource().getUserId();
                 if (userId != null) {
                     if (event.getSource() instanceof GroupSource) {
@@ -345,10 +345,10 @@ public class KitchenSinkController {
                                     this.reply(
                                             replyToken,
                                             Arrays.asList(new TextMessage("(from group)"),
-                                                          new TextMessage(
-                                                                  "Display name: " + profile.getDisplayName()),
-                                                          new ImageMessage(profile.getPictureUrl(),
-                                                                           profile.getPictureUrl()))
+                                                    new TextMessage(
+                                                            "Display name: " + profile.getDisplayName()),
+                                                    new ImageMessage(profile.getPictureUrl(),
+                                                            profile.getPictureUrl()))
                                     );
                                 });
                     } else {
@@ -363,9 +363,9 @@ public class KitchenSinkController {
                                     this.reply(
                                             replyToken,
                                             Arrays.asList(new TextMessage(
-                                                                  "Display name: " + profile.getDisplayName()),
-                                                          new TextMessage("Status message: "
-                                                                          + profile.getStatusMessage()))
+                                                            "Display name: " + profile.getDisplayName()),
+                                                    new TextMessage("Status message: "
+                                                            + profile.getStatusMessage()))
                                     );
 
                                 });
@@ -396,7 +396,7 @@ public class KitchenSinkController {
                     this.replyText(replyToken, "Group summary: " + groupSummary);
                 } else {
                     this.replyText(replyToken, "You can't use 'group_summary' command for "
-                                               + source);
+                            + source);
                 }
                 break;
             }
@@ -406,10 +406,10 @@ public class KitchenSinkController {
                     GroupMemberCountResponse groupMemberCountResponse = lineMessagingClient.getGroupMemberCount(
                             ((GroupSource) source).getGroupId()).get();
                     this.replyText(replyToken, "Group member count: "
-                                               + groupMemberCountResponse.getCount());
+                            + groupMemberCountResponse.getCount());
                 } else {
                     this.replyText(replyToken, "You can't use 'group_member_count' command  for "
-                                               + source);
+                            + source);
                 }
                 break;
             }
@@ -419,10 +419,10 @@ public class KitchenSinkController {
                     RoomMemberCountResponse roomMemberCountResponse = lineMessagingClient.getRoomMemberCount(
                             ((RoomSource) source).getRoomId()).get();
                     this.replyText(replyToken, "Room member count: "
-                                               + roomMemberCountResponse.getCount());
+                            + roomMemberCountResponse.getCount());
                 } else {
                     this.replyText(replyToken, "You can't use 'room_member_count' command  for "
-                                               + source);
+                            + source);
                 }
                 break;
             }
@@ -444,14 +444,14 @@ public class KitchenSinkController {
                         "Hello, my button",
                         Arrays.asList(
                                 new URIAction("Go to line.me",
-                                              URI.create("https://line.me"), null),
+                                        URI.create("https://line.me"), null),
                                 new PostbackAction("Say hello1",
-                                                   "hello こんにちは"),
+                                        "hello こんにちは"),
                                 new PostbackAction("言 hello2",
-                                                   "hello こんにちは",
-                                                   "hello こんにちは"),
+                                        "hello こんにちは",
+                                        "hello こんにちは"),
                                 new MessageAction("Say message",
-                                                  "Rice=米")
+                                        "Rice=米")
                         ));
                 TemplateMessage templateMessage = new TemplateMessage("Button alt text", buttonsTemplate);
                 this.reply(replyToken, templateMessage);
@@ -463,24 +463,24 @@ public class KitchenSinkController {
                         Arrays.asList(
                                 new CarouselColumn(imageUrl, "hoge", "fuga", Arrays.asList(
                                         new URIAction("Go to line.me",
-                                                      URI.create("https://line.me"), null),
+                                                URI.create("https://line.me"), null),
                                         new URIAction("Go to line.me",
-                                                      URI.create("https://line.me"), null),
+                                                URI.create("https://line.me"), null),
                                         new PostbackAction("Say hello1",
-                                                           "hello こんにちは")
+                                                "hello こんにちは")
                                 )),
                                 new CarouselColumn(imageUrl, "hoge", "fuga", Arrays.asList(
                                         new PostbackAction("言 hello2",
-                                                           "hello こんにちは",
-                                                           "hello こんにちは"),
+                                                "hello こんにちは",
+                                                "hello こんにちは"),
                                         new PostbackAction("言 hello2",
-                                                           "hello こんにちは",
-                                                           "hello こんにちは"),
+                                                "hello こんにちは",
+                                                "hello こんにちは"),
                                         new MessageAction("Say message",
-                                                          "Rice=米")
+                                                "Rice=米")
                                 )),
                                 new CarouselColumn(imageUrl, "Datetime Picker",
-                                                   "Please select a date, time or datetime", Arrays.asList(
+                                        "Please select a date, time or datetime", Arrays.asList(
                                         DatetimePickerAction.OfLocalDatetime
                                                 .builder()
                                                 .label("Datetime")
@@ -516,21 +516,21 @@ public class KitchenSinkController {
                 ImageCarouselTemplate imageCarouselTemplate = new ImageCarouselTemplate(
                         Arrays.asList(
                                 new ImageCarouselColumn(imageUrl,
-                                                        new URIAction("Goto line.me",
-                                                                      URI.create("https://line.me"), null)
+                                        new URIAction("Goto line.me",
+                                                URI.create("https://line.me"), null)
                                 ),
                                 new ImageCarouselColumn(imageUrl,
-                                                        new MessageAction("Say message",
-                                                                          "Rice=米")
+                                        new MessageAction("Say message",
+                                                "Rice=米")
                                 ),
                                 new ImageCarouselColumn(imageUrl,
-                                                        new PostbackAction("言 hello2",
-                                                                           "hello こんにちは",
-                                                                           "hello こんにちは")
+                                        new PostbackAction("言 hello2",
+                                                "hello こんにちは",
+                                                "hello こんにちは")
                                 )
                         ));
                 TemplateMessage templateMessage = new TemplateMessage("ImageCarousel alt text",
-                                                                      imageCarouselTemplate);
+                        imageCarouselTemplate);
                 this.reply(replyToken, templateMessage);
                 break;
             }
@@ -546,21 +546,21 @@ public class KitchenSinkController {
                         .baseSize(new ImagemapBaseSize(1040, 1040))
                         .actions(Arrays.asList(
                                 URIImagemapAction.builder()
-                                                 .linkUri("https://store.line.me/family/manga/en")
-                                                 .area(new ImagemapArea(0, 0, 520, 520))
-                                                 .build(),
+                                        .linkUri("https://store.line.me/family/manga/en")
+                                        .area(new ImagemapArea(0, 0, 520, 520))
+                                        .build(),
                                 URIImagemapAction.builder()
-                                                 .linkUri("https://store.line.me/family/music/en")
-                                                 .area(new ImagemapArea(520, 0, 520, 520))
-                                                 .build(),
+                                        .linkUri("https://store.line.me/family/music/en")
+                                        .area(new ImagemapArea(520, 0, 520, 520))
+                                        .build(),
                                 URIImagemapAction.builder()
-                                                 .linkUri("https://store.line.me/family/play/en")
-                                                 .area(new ImagemapArea(0, 520, 520, 520))
-                                                 .build(),
+                                        .linkUri("https://store.line.me/family/play/en")
+                                        .area(new ImagemapArea(0, 520, 520, 520))
+                                        .build(),
                                 MessageImagemapAction.builder()
-                                                     .text("URANAI!")
-                                                     .area(new ImagemapArea(520, 520, 520, 520))
-                                                     .build()
+                                        .text("URANAI!")
+                                        .area(new ImagemapArea(520, 520, 520, 520))
+                                        .build()
                         ))
                         .build());
                 break;
@@ -572,23 +572,23 @@ public class KitchenSinkController {
                         .baseSize(new ImagemapBaseSize(722, 1040))
                         .video(
                                 ImagemapVideo.builder()
-                                             .originalContentUrl(
-                                                     createUri("/static/imagemap_video/originalContent.mp4"))
-                                             .previewImageUrl(
-                                                     createUri("/static/imagemap_video/previewImage.jpg"))
-                                             .area(new ImagemapArea(40, 46, 952, 536))
-                                             .externalLink(
-                                                     new ImagemapExternalLink(
-                                                             URI.create("https://example.com/see_more.html"),
-                                                             "See More")
-                                             )
-                                             .build()
+                                        .originalContentUrl(
+                                                createUri("/static/imagemap_video/originalContent.mp4"))
+                                        .previewImageUrl(
+                                                createUri("/static/imagemap_video/previewImage.jpg"))
+                                        .area(new ImagemapArea(40, 46, 952, 536))
+                                        .externalLink(
+                                                new ImagemapExternalLink(
+                                                        URI.create("https://example.com/see_more.html"),
+                                                        "See More")
+                                        )
+                                        .build()
                         )
                         .actions(singletonList(
                                 MessageImagemapAction.builder()
-                                                     .text("NIXIE CLOCK")
-                                                     .area(new ImagemapArea(260, 600, 450, 86))
-                                                     .build()
+                                        .text("NIXIE CLOCK")
+                                        .area(new ImagemapArea(260, 600, 450, 86))
+                                        .build()
                         ))
                         .build());
                 break;
@@ -600,18 +600,18 @@ public class KitchenSinkController {
                 break;
             case "no_notify":
                 this.reply(replyToken,
-                           singletonList(new TextMessage("This message is send without a push notification")),
-                           true);
+                        singletonList(new TextMessage("This message is send without a push notification")),
+                        true);
                 break;
             case "icon":
                 this.reply(replyToken,
-                           TextMessage.builder()
-                                      .text("Hello, I'm cat! Meow~")
-                                      .sender(Sender.builder()
-                                                    .name("Cat")
-                                                    .iconUrl(createUri("/static/icon/cat.png"))
-                                                    .build())
-                                      .build());
+                        TextMessage.builder()
+                                .text("Hello, I'm cat! Meow~")
+                                .sender(Sender.builder()
+                                        .name("Cat")
+                                        .iconUrl(createUri("/static/icon/cat.png"))
+                                        .build())
+                                .build());
                 break;
             default:
                 log.info("Returns echo message {}: {}", replyToken, text);
@@ -625,9 +625,9 @@ public class KitchenSinkController {
 
     private static URI createUri(String path) {
         return ServletUriComponentsBuilder.fromCurrentContextPath()
-                                          .scheme("https")
-                                          .path(path).build()
-                                          .toUri();
+                .scheme("https")
+                .path(path).build()
+                .toUri();
     }
 
     private void system(String... args) {
@@ -671,3 +671,4 @@ public class KitchenSinkController {
         Path path;
         URI uri;
     }
+}
