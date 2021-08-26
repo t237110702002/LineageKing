@@ -140,7 +140,7 @@ public class LineageService {
                 messages = "Hi Hi Hi 我是Tina小幫手";
                 break;
             case "clear":
-                command_clear(receivedMessage);
+                messages = command_clear(receivedMessage);
                 break;
             case "k":
                 String[] strings = StringUtils.split(receivedMessage, " ");
@@ -185,18 +185,21 @@ public class LineageService {
                 }
                 break;
             default:
+                boolean find = false;
                 for (KingInfo kingInfo: database.values()) {
                     if (receivedMessage.equals(kingInfo.getName())) {
                         messages = getOneKingInfoStr(kingInfo);
-                        break;
+                        find = true;
                     }
                 }
-                messages = "指令集: \n" +
-                        "kb: 列出近10筆王重生表  \n" +
-                        "kb all: 列出所王重生表  \n" +
-                        "k [王名稱]: 設定死亡時間(當下) \n" +
-                        "k [王名稱] [死亡時間]: 設定[死亡時間]，時間規則24小時制[hhmm]或[hhmmss] \n" +
-                        "clear [王名稱]: 清除死亡時間和重生時間";
+                if (!find) {
+                    messages = "指令集: \n" +
+                            "kb: 列出近10筆王重生表  \n" +
+                            "kb all: 列出所王重生表  \n" +
+                            "k [王名稱]: 設定死亡時間(當下) \n" +
+                            "k [王名稱] [死亡時間]: 設定[死亡時間]，時間規則24小時制[hhmm]或[hhmmss] \n" +
+                            "clear [王名稱]: 清除死亡時間和重生時間";
+                }
                 break;
         }
         return messages;
