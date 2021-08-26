@@ -108,8 +108,9 @@ public class LineBotService {
 
                 if (min < 5 && min > 0) {
                     kingWillAppear = true;
-                    String msg = String.format("!!!提醒!!! [%s]-%s 預估出現時間: %s",
-                            kingInfo.getName(), kingInfo.getLocation(), tFormat.format(kingInfo.getNextAppear()));
+                    String randomStr = kingInfo.isRandom() ? "隨" : "必";
+                    String msg = String.format("<<提醒>>\n[%s]-%s(%s) 重生時間: %s",
+                            kingInfo.getName(), kingInfo.getLocation(), randomStr, tFormat.format(kingInfo.getNextAppear()));
                     pushMessages.add(new TextMessage(msg));
                 }
             }

@@ -81,10 +81,10 @@ public class KingInfo implements Comparable<KingInfo> {
     @Override
     public int compareTo(KingInfo o) {
         if (getNextAppear() == null) {
-            return -1;
+            return 1;
         }
         if (o.getNextAppear() == null) {
-            return 1;
+            return -1;
         }
         return getNextAppear().compareTo(o.getNextAppear());
     }

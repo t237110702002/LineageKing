@@ -179,7 +179,7 @@ public class LineageService {
                 break;
             case "kb":
                 List<KingInfo> collections = database.values().stream().collect(Collectors.toList());
-                Collections.sort(collections, Collections.reverseOrder());
+                Collections.sort(collections);
                 for (int i = 0; i<10; i++) {
                     messages = messages + getKingsInfoStrForTen(collections.get(i));
                 }
