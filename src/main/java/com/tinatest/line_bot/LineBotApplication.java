@@ -8,6 +8,9 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import javax.annotation.PostConstruct;
+import java.util.TimeZone;
+
 @Configuration
 @SpringBootApplication(exclude = JmxAutoConfiguration.class)
 @EnableScheduling
@@ -21,6 +24,12 @@ public class LineBotApplication extends SpringBootServletInitializer {
 	public static void main(String[] args) {
 		SpringApplication.run(LineBotApplication.class, args);
 		System.out.println("LineageKing Bot Start........");
+	}
+
+	@PostConstruct
+	public void init(){
+		// Setting Spring Boot SetTimeZone
+		TimeZone.setDefault(TimeZone.getTimeZone("GMT+8:00"));
 	}
 
 }
