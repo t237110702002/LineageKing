@@ -11,12 +11,19 @@ import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.StickerMessage;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.model.response.BotApiResponse;
+import com.tinatest.line_bot.dto.KingInfo;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @Service
@@ -27,6 +34,9 @@ public class LineBotService {
     private final LineMessagingClient client = LineMessagingClient
             .builder(ACCESS_TOKEN)
             .build();
+
+    @Autowired
+    private LineageService lineageService;
 
     public void pushMessage(String userId) {
 
@@ -88,6 +98,38 @@ public class LineBotService {
 //        String replyToken = event.getReplyToken();
 //
 //    }
+    @Scheduled(cron=  "0 */1 * ? * *")
+    public void checkTask() {
+
+        System.out.println("================> checkTask ");
+        boolean kingWillAppear = false;
+
+        Map<String, KingInfo> database = lineageService.getDatabase();
+        List<Message> pushMessages = new ArrayList<>();
+        SimpleDateFormat sdFormat = new SimpleDateFormat("HH:mm:ss");
+        for(KingInfo kingInfo: database.values()) {
+            if (kingInfo.getNextAppear() != null) {
+                Date now = new Date();
+                int min = (int) ((kingInfo.getNextAppear().getTime() - now.getTime()) / (1000*60));
+
+//                System.out.println(String.format("%s --> 下次出現時間: %s",kingInfo.getName(), sdFormat.format(kingInfo.getNextAppear())));
+
+                if (min < 5 && min > 0) {
+                    kingWillAppear = true;
+                    String msg = String.format("!!!提醒!!! [%s]-%s 預估出現時間: %s",
+                            kingInfo.getName(), kingInfo.getLocation(), sdFormat.format(kingInfo.getNextAppear()));
+
+                    System.out.println(msg);
+                    pushMessages.add(new TextMessage(msg));
+                }
+            }
+        }
+
+//        if (kingWillAppear) {
+//            Broadcast broadcast = new Broadcast(pushMessages);
+//            client.broadcast(broadcast);
+//        }
+    }
 
     public void replyText(String replyToken, String message) {
         client.replyMessage(new ReplyMessage(replyToken, new TextMessage(message)));
