@@ -184,6 +184,11 @@ public class LineageService {
                         break;
                     }
                 }
+                messages = "指令集: \n" +
+                        "kb：  列出近10筆王重生表  \n" +
+                        "kb all：　列出所王重生表  \n" +
+                        "k [王名稱]：　設定死亡時間(當下) \n" +
+                        "k [王名稱] [死亡時間]：　設定[死亡時間]，時間規則24小時制[hhmm]或[hhmmss]。";
                 break;
         }
         return messages;
