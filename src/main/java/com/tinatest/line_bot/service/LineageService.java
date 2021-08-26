@@ -127,6 +127,10 @@ public class LineageService {
             keyword = "k";
         }
 
+        if (receivedMessage.startsWith("clear ")) {
+            keyword = "clear";
+        }
+
 
         switch (keyword) {
             case "hi":
@@ -134,6 +138,9 @@ public class LineageService {
             case "你好":
             case "hello":
                 messages = "Hi Hi Hi 我是Tina小幫手";
+                break;
+            case "clear":
+                command_clear(receivedMessage);
                 break;
             case "k":
                 String[] strings = StringUtils.split(receivedMessage, " ");
@@ -185,14 +192,25 @@ public class LineageService {
                     }
                 }
                 messages = "指令集: \n" +
-                        "kb：  列出近10筆王重生表  \n" +
-                        "kb all：　列出所王重生表  \n" +
-                        "k [王名稱]：　設定死亡時間(當下) \n" +
-                        "k [王名稱] [死亡時間]：　設定[死亡時間]，時間規則24小時制[hhmm]或[hhmmss]。";
+                        "kb: 列出近10筆王重生表  \n" +
+                        "kb all: 列出所王重生表  \n" +
+                        "k [王名稱]: 設定死亡時間(當下) \n" +
+                        "k [王名稱] [死亡時間]: 設定[死亡時間]，時間規則24小時制[hhmm]或[hhmmss] \n" +
+                        "clear [王名稱]: 清除死亡時間和重生時間";
                 break;
         }
         return messages;
     }
+
+    private String command_clear(String receivedMessage) {
+        String[] strings = StringUtils.split(receivedMessage, " ");
+        KingInfo king = findKingByName(strings[1].trim());
+        king.setLastAppear(null);
+        king.setNextAppear(null);
+        database.put(king.getId(), king);
+        return getOneKingInfoStr(king);
+    }
+
 
     private String getKingsInfoStr(KingInfo kingInfo) {
         String randomStr = kingInfo.isRandom() ? "隨" : "必";
