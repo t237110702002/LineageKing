@@ -35,7 +35,7 @@
         $.ajax({
             async: false,
             type :"GET",
-            url  : "https://line-bot-lineageking.herokuapp.com/kinglist",
+            url  : "/kinglist",
             contentType: "application/json",
             dataType: "json",
             success : function(result) {
