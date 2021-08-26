@@ -179,9 +179,12 @@ public class LineageService {
                 break;
             case "kb":
                 List<KingInfo> collections = database.values().stream().collect(Collectors.toList());
-                Collections.sort(collections);
-                for (int i = 0; i<10; i++) {
-                    messages = messages + getKingsInfoStrForTen(collections.get(i));
+                List<KingInfo> kingInfos = collections.stream().filter(k -> k.getNextAppear() != null).collect(Collectors.toList());
+                Collections.sort(kingInfos);
+
+                int size = kingInfos.size() < 10 ? kingInfos.size() : 10;
+                for (int i = 0; i<size; i++) {
+                    messages = messages + getKingsInfoStrForTen(kingInfos.get(i));
                 }
                 break;
             default:
