@@ -17,6 +17,8 @@ public class LineageService {
 
     private static Map<String, KingInfo> database = new LinkedHashMap<>();
 
+    private final SimpleDateFormat sdFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
     @PostConstruct
     public void init() {
         database.put("1", new KingInfo("佩爾利斯", "蜜蜂蜂窩", 180, true, null, null));
@@ -104,4 +106,44 @@ public class LineageService {
     public Map<String, KingInfo> getDatabase() {
         return database;
     }
+
+
+    public String getMsg(String receivedMessage) {
+        Map<String, KingInfo> database = getDatabase();
+        String messages = "";
+        switch (receivedMessage.toLowerCase()) {
+            case "hi":
+            case "嗨":
+            case "你好":
+            case "hello":
+                messages = "HI HI HI 我是Tina小幫手";
+                break;
+            case "kb all":
+                for (KingInfo kingInfo: database.values()) {
+                    String randomStr = kingInfo.isRandom() ? "隨" : "必";
+                    String lastAppearStr = kingInfo.getLastAppear() == null ? "無紀錄時間" : sdFormat.format(kingInfo.getLastAppear());
+                    String nextAppearStr = kingInfo.getLastAppear() == null ? "無紀錄時間" : sdFormat.format(kingInfo.getNextAppear());
+
+
+                    messages = messages + String.format("[%s]-%s(%s) 死亡時間:%s 重生時間:%s \n",
+                            kingInfo.getName(), kingInfo.getLocation(), randomStr, lastAppearStr, nextAppearStr);
+                }
+            break;
+            default:
+                for (KingInfo kingInfo: database.values()) {
+                    if (receivedMessage.equals(kingInfo.getName())) {
+                        String randomStr = kingInfo.isRandom() ? "隨" : "必";
+                        String lastAppearStr = kingInfo.getLastAppear() == null ? "無紀錄時間" : sdFormat.format(kingInfo.getLastAppear());
+                        String nextAppearStr = kingInfo.getLastAppear() == null ? "無紀錄時間" : sdFormat.format(kingInfo.getNextAppear());
+                        messages = messages + String.format("[%s]-%s(%s) \n死亡時間:%s\n重生時間:%s",
+                                kingInfo.getName(), kingInfo.getLocation(), randomStr, lastAppearStr, nextAppearStr);
+                        break;
+                    }
+
+                }
+                break;
+        }
+        return messages;
+    }
+
 }
