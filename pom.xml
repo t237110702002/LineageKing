@@ -149,7 +149,7 @@
 					</includes>
 					<processTypes>
 <!--						<web>java $JAVA_OPTS -cp target/classes:target/dependency/* Main</web>-->
-						<web>java $JAVA_OPTS -jar ${project.build.directory}/${project.build.finalName}.jar -Dserver.port=$PORT</web>
+						<web>java $JAVA_OPTS -jar ${project.build.directory}/${project.build.finalName}.jar -Dserver.port=$PORT -Duser.timezone=Asia/Taipei</web>
 					</processTypes>
 				</configuration>
 			</plugin>
