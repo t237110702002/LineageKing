@@ -9,18 +9,17 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Service
 public class LineageService {
 
-    private static Map<String, KingInfo> database = new HashMap<>();
-
+    private static Map<String, KingInfo> database = new LinkedHashMap<>();
 
     @PostConstruct
     public void init() {
-        database.put("1", new KingInfo("佩爾利斯", "蜜蜂蜂窩", 3, true, new Date(), null));
+        database.put("1", new KingInfo("佩爾利斯", "蜜蜂蜂窩", 180, true, null, null));
         database.put("2", new KingInfo("巴實那", "荒原南部", 240, true,null, null));
         database.put("3", new KingInfo("潘納洛德", "哥肯花園", 300, true,null, null));
         database.put("4", new KingInfo("采爾圖巴", "采爾圖巴營帳", 360, true,null, null));
@@ -63,15 +62,14 @@ public class LineageService {
     }
 
 
-    public void createData(String id, String name, String location, String period, String lastAppear, String random) {
-        if (StringUtils.isBlank(lastAppear) || database.size() >= 100) {
+    public String createData(String id, String name, String location, String period, String lastAppear, String random) {
+        if (StringUtils.isBlank(lastAppear)) {
             System.out.println("lastAppear is empty");
-            return;
+            return "lastAppear 沒有填";
         }
-
         if (database.size() >= 100) {
             System.out.println("database滿了喔! size:100");
-            return;
+            return "database滿了喔!";
         }
         Date lastAppearDate = null;
 
@@ -85,10 +83,14 @@ public class LineageService {
         if (kingInfo == null) {
             String newId = String.valueOf(database.size() + 1);
             database.put(newId, new KingInfo(name, location, Integer.getInteger(period), Boolean.getBoolean(random), lastAppearDate, getNextAppear(kingInfo.getPeriod(),  lastAppearDate)));
+
+            return "新增一筆: " + name;
+
         } else {
             kingInfo.setLastAppear(lastAppearDate);
             kingInfo.setNextAppear(getNextAppear(kingInfo.getPeriod(),  lastAppearDate));
             database.put(id, kingInfo);
+            return "修改一筆: " + kingInfo.getName();
         }
     }
 

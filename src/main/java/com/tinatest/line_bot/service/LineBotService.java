@@ -100,8 +100,9 @@ public class LineBotService {
 //    }
     @Scheduled(cron=  "0 */1 * ? * *")
     public void checkTask() {
+        Date now = new Date();
 
-        System.out.println("================> checkTask ");
+        System.out.println("================> checkTask Date:" + now);
         boolean kingWillAppear = false;
 
         Map<String, KingInfo> database = lineageService.getDatabase();
@@ -109,7 +110,6 @@ public class LineBotService {
         SimpleDateFormat sdFormat = new SimpleDateFormat("HH:mm:ss");
         for(KingInfo kingInfo: database.values()) {
             if (kingInfo.getNextAppear() != null) {
-                Date now = new Date();
                 int min = (int) ((kingInfo.getNextAppear().getTime() - now.getTime()) / (1000*60));
 
 //                System.out.println(String.format("%s --> 下次出現時間: %s",kingInfo.getName(), sdFormat.format(kingInfo.getNextAppear())));
@@ -118,17 +118,15 @@ public class LineBotService {
                     kingWillAppear = true;
                     String msg = String.format("!!!提醒!!! [%s]-%s 預估出現時間: %s",
                             kingInfo.getName(), kingInfo.getLocation(), sdFormat.format(kingInfo.getNextAppear()));
-
-                    System.out.println(msg);
                     pushMessages.add(new TextMessage(msg));
                 }
             }
         }
 
-//        if (kingWillAppear) {
-//            Broadcast broadcast = new Broadcast(pushMessages);
-//            client.broadcast(broadcast);
-//        }
+        if (kingWillAppear) {
+            Broadcast broadcast = new Broadcast(pushMessages);
+            client.broadcast(broadcast);
+        }
     }
 
     public void replyText(String replyToken, String message) {

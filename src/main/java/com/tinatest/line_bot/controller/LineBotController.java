@@ -31,11 +31,6 @@ import java.util.concurrent.ExecutionException;
 @Slf4j
 public class LineBotController {
 
-    private static final String ACCESS_TOKEN = "yXg2XLMonW2Odz62Jc8bOW5TW5aYEOwP4yAJmRk53dp9BAV4RC+nunO5IAqXMSCK/8z7WcYUe655wZpjl2FttMkH3KZ4CLMjZhqDy8snZCtkJCWFCHQcCMWiQSariPJiU5InRcF75xmFeowOdyAM7AdB04t89/1O/w1cDnyilFU=";
-
-    @Autowired
-    private LineBotService lineBotService;
-
 
     @GetMapping
     @ResponseBody
