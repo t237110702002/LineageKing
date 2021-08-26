@@ -35,6 +35,8 @@ public class LineBotService {
             .builder(ACCESS_TOKEN)
             .build();
 
+    private final SimpleDateFormat sdFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
     @Autowired
     private LineageService lineageService;
 
@@ -68,17 +70,34 @@ public class LineBotService {
             Broadcast broadcast = new Broadcast(new TextMessage(pushMsg));
             return client.broadcast(broadcast).get();
         }
-
+        Map<String, KingInfo> database = lineageService.getDatabase();
         List<Message> messages = null;
-        switch (receivedMessage) {
-            case "Hi":
+        switch (receivedMessage.toLowerCase()) {
             case "hi":
             case "嗨":
             case "你好":
+            case "hello":
                 messages = Arrays.asList(new TextMessage("HI HI HI 我是Tina小幫手"));
                 break;
+            case "kb all":
+                String msg = "";
+                for (KingInfo kingInfo: database.values()) {
+                    String randomStr = kingInfo.isRandom() ? "隨" : "必";
+                    msg = msg + String.format("[%s]-%s(%s) 死亡時間:%s 重生時間:%s",
+                                kingInfo.getName(), kingInfo.getLocation(), randomStr, sdFormat.format(kingInfo.getLastAppear()), sdFormat.format(kingInfo.getNextAppear()));
+                }
+                messages.add(new TextMessage(msg));
+                break;
             default:
-                messages = Arrays.asList(new TextMessage("測試預設訊息"), new TextMessage("第二則?"));
+                for (KingInfo kingInfo: database.values()) {
+                    if (receivedMessage.equals(kingInfo.getName())) {
+                        String randomStr = kingInfo.isRandom() ? "隨" : "必";
+                        messages.add(new TextMessage(String.format("[%s]-%s(%s) \n死亡時間:%s\n 重生時間:%s",
+                                kingInfo.getName(), kingInfo.getLocation(), randomStr, sdFormat.format(kingInfo.getLastAppear()), sdFormat.format(kingInfo.getNextAppear()))));
+                        break;
+                    }
+
+                }
                 break;
         }
         return client.replyMessage(new ReplyMessage(replyToken, messages)).get();
@@ -107,8 +126,8 @@ public class LineBotService {
 
         Map<String, KingInfo> database = lineageService.getDatabase();
         List<Message> pushMessages = new ArrayList<>();
-        SimpleDateFormat sdFormat = new SimpleDateFormat("HH:mm:ss");
-        for(KingInfo kingInfo: database.values()) {
+        SimpleDateFormat tFormat = new SimpleDateFormat("HH:mm:ss");
+        for (KingInfo kingInfo: database.values()) {
             if (kingInfo.getNextAppear() != null) {
                 int min = (int) ((kingInfo.getNextAppear().getTime() - now.getTime()) / (1000*60));
 
@@ -117,7 +136,7 @@ public class LineBotService {
                 if (min < 5 && min > 0) {
                     kingWillAppear = true;
                     String msg = String.format("!!!提醒!!! [%s]-%s 預估出現時間: %s",
-                            kingInfo.getName(), kingInfo.getLocation(), sdFormat.format(kingInfo.getNextAppear()));
+                            kingInfo.getName(), kingInfo.getLocation(), tFormat.format(kingInfo.getNextAppear()));
                     pushMessages.add(new TextMessage(msg));
                 }
             }

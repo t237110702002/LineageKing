@@ -60,4 +60,11 @@ public class KingInfo {
         this.nextAppear = nextAppear;
     }
 
+    public boolean isRandom() {
+        return random;
+    }
+
+    public void setRandom(boolean random) {
+        this.random = random;
+    }
 }
