@@ -12,6 +12,9 @@ public class KingInfo implements Comparable<KingInfo> {
     private Date lastAppear;
     private Date nextAppear;
 
+    public KingInfo() {
+    }
+
     public KingInfo(String id, String name, String location, int period, boolean random, Date lastAppear, Date nextAppear) {
         this.id = id;
         this.name = name;
