@@ -34,9 +34,9 @@ public class MessageHandler {
 
     @EventMapping
     public void handleTextMessageEvent(MessageEvent<TextMessageContent> event) throws IOException, ExecutionException, InterruptedException {
-        System.out.println("event: " + event);
+//        System.out.println("event: " + event);
         BotApiResponse response = lineBotService.reply(event);
-        System.out.println("Sent messages: " + response);
+//        System.out.println("Sent messages: " + response);
     }
 
     @EventMapping

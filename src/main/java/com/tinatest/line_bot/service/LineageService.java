@@ -6,14 +6,19 @@ import com.tinatest.line_bot.model.KingShortNameEntity;
 import com.tinatest.line_bot.model.KingShortNameRepository;
 import com.tinatest.line_bot.model.LineageKingInfoEntity;
 import com.tinatest.line_bot.model.LineageKingInfoRepository;
+import com.tinatest.line_bot.model.UserInfoEntity;
+import com.tinatest.line_bot.model.UserInfoRepository;
+import com.tinatest.line_bot.model.common.Common;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -29,11 +34,8 @@ import java.util.stream.Collectors;
 public class LineageService {
 
     private static Map<String, KingInfo> database = new LinkedHashMap<>();
-
-    private static final SimpleDateFormat sdFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private static final SimpleDateFormat timeOnlyFormat = new SimpleDateFormat("HH:mm:ss");
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat(String.format("yyyy-MM-dd"));
-    private static final SimpleDateFormat formatter = new SimpleDateFormat(String.format("yyyy-MM-dd HHmmss"));
+    private static List<KingInfo> kingInfoList;
+    private static List<String> userInfoList;
 
     @Autowired
     private LineageKingInfoRepository lineageKingInfoRepository;
@@ -41,8 +43,15 @@ public class LineageService {
     @Autowired
     private KingShortNameRepository kingShortNameRepository;
 
+    @Autowired
+    private UserInfoRepository userInfoRepository;
+
+
+
     @PostConstruct
     public void init() {
+        kingInfoList = this.getAllKings();
+        userInfoList = this.getUserNotifyList();
 //        database.put("1", new KingInfo("1", "佩爾利斯", "蜜蜂蜂窩", 180, true, null, null));
 //        database.put("2", new KingInfo("2","巴實那", "荒原南部", 240, true,null, null));
 //        database.put("3", new KingInfo("3","潘納洛德", "哥肯花園", 300, true,null, null));
@@ -106,7 +115,7 @@ public class LineageService {
         Date lastAppearDate = null;
 
         try {
-            lastAppearDate = sdFormat.parse(lastAppear);
+            lastAppearDate = Common.sdFormat.parse(lastAppear);
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -155,8 +164,27 @@ public class LineageService {
 
     public List<KingInfo> getAllKings() {
         List<KingInfo> all = new LinkedList<>();
-        lineageKingInfoRepository.findAll().forEach(e-> all.add(transform(e)));
+        lineageKingInfoRepository.findAllByOrderByNextAppear().forEach(e-> all.add(transform(e)));
         return all;
+    }
+
+    public String updateUserNotity(String userId, boolean notify) {
+        Optional<UserInfoEntity> userInfo = userInfoRepository.findById(userId);
+        UserInfoEntity userInfoEntity;
+        if (userInfo.isPresent()) {
+            userInfoEntity = userInfo.get();
+        } else {
+            userInfoEntity = new UserInfoEntity();
+            userInfoEntity.setUserId(userId);
+        }
+        userInfoEntity.setNotify(notify);
+        userInfoEntity.setUpdateDate(new Date());
+        userInfoRepository.save(userInfoEntity);
+        return notify ? Common.ALERT + "通知已開啟" : Common.ALERT + "通知已關閉";
+    }
+    public List<String> getUserNotifyList() {
+        List<UserInfoEntity> userInfoEntities = userInfoRepository.findByNotify(true);
+        return userInfoEntities.stream().map(UserInfoEntity::getUserId).collect(Collectors.toList());
     }
 
     public String goUpdate(List<KingInfoRequest> kingInfoList) {
@@ -165,10 +193,10 @@ public class LineageService {
             LineageKingInfoEntity king = getKingByName(kingInfo.getName());
             try {
                 if (kingInfo.getLastAppear() != null) {
-                    king.setLastAppear(sdFormat.parse(kingInfo.getLastAppear()));
+                    king.setLastAppear(Common.sdFormat.parse(kingInfo.getLastAppear()));
                 }
                 if (kingInfo.getNextAppear() != null) {
-                    king.setNextAppear(sdFormat.parse(kingInfo.getNextAppear()));
+                    king.setNextAppear(Common.sdFormat.parse(kingInfo.getNextAppear()));
                 } else if (king.getLastAppear() != null) {
                     king.setNextAppear(getNextAppear(king.getPeriodMin(),  king.getLastAppear()));
                 }
@@ -187,29 +215,29 @@ public class LineageService {
 
         receivedMessage = receivedMessage.toLowerCase();
         receivedMessage = receivedMessage.trim();
-        String keyword = new String(receivedMessage);
+        String keyword = String.format(receivedMessage);
 
-//        Map<String, KingInfo> database = getDatabase();
         List<KingInfo> allKings = getAllKings();
         String messages = "";
 
         if (receivedMessage.startsWith("k ")) {
             keyword = "k";
-        }
-        if (receivedMessage.startsWith("clear ")) {
+        } else if (receivedMessage.startsWith("clear ")) {
             keyword = "clear";
-        }
-        if (receivedMessage.startsWith("add tag")) {
+        } else if (receivedMessage.startsWith("add tag")) {
             keyword = "add tag";
+        } else if (receivedMessage.startsWith("kr ")) {
+            keyword = "kr";
+        } else if (receivedMessage.startsWith("tag ")) {
+            keyword = "tag";
         }
-
 
         switch (keyword) {
             case "hi":
             case "嗨":
             case "你好":
             case "hello":
-                messages = "Hi Hi Hi 我是Tina小幫手";
+                messages = Common.HI + "Hi Hi Hi 我是Tina小幫手";
                 break;
             case "clear":
                 messages = command_clear(receivedMessage);
@@ -217,72 +245,106 @@ public class LineageService {
             case "add tag":
                 messages = command_addTag(receivedMessage);
                 break;
+            case "tag":
+                messages = command_tag(receivedMessage);
+                break;
             case "k":
-                String[] strings = StringUtils.split(receivedMessage, " ");
-                Date now = new Date();
-                Date killingDate = null;
-                if (strings.length == 2) {
-                    killingDate = now;
-                } else if (strings.length == 3) {
-
-                    String allTime = (strings[2].length() == 4) ? strings[2].trim() + "00" : strings[2];
-
-                    try {
-                        killingDate = formatter.parse(String.format("%s %s",dateFormat.format(now), allTime));
-                    } catch (ParseException e) {
-                        messages = "時間錯誤";
-                        break;
-                    }
-                }
-
-                LineageKingInfoEntity king = getKingByName(strings[1]);
-                if (king == null) {
-                    messages = "查無此王 : " + strings[1];
-                    break;
-                }
-
-                king.setLastAppear(killingDate);
-                king.setNextAppear(getNextAppear(king.getPeriodMin(),  killingDate));
-                king.setUpdateDate(new Date());
-//                database.put(king.getId(), king);
-                lineageKingInfoRepository.save(king);
-                messages = getOneKingInfoStr(transform(king));
+                messages = command_k(receivedMessage);
+                break;
+            case "kr":
+                messages = command_kr(receivedMessage);
                 break;
             case "kb all":
-                List<KingInfo> sorted = getSorted(allKings);
-                for (KingInfo kingInfo: sorted) {
+//                List<KingInfo> sorted = getSorted(allKings);
+                for (KingInfo kingInfo: allKings) {
                     messages = messages + getKingsInfoStrForTen(kingInfo);
                 }
                 break;
             case "kb":
                 List<KingInfo> result = allKings.stream().filter(k -> k.getNextAppear() != null).collect(Collectors.toList());
-                List<KingInfo> sortedForTen = getSorted(result);
-                int size = sortedForTen.size() < 10 ? sortedForTen.size() : 10;
-                for (int i = 0; i<size; i++) {
-                    messages = messages + getKingsInfoStrForTen(sortedForTen.get(i));
+                if (CollectionUtils.isEmpty(result)) {
+                    messages = Common.ALERT + "無出王資訊" +Common.PENCIL;
+                } else {
+//                    List<KingInfo> sortedForTen = getSorted(result);
+                    int size = result.size() < 10 ? result.size() : 10;
+                    for (int i = 0; i < size; i++) {
+                        messages = messages + getKingsInfoStrForTen(result.get(i));
+                    }
                 }
                 break;
             default:
-                boolean find = false;
-                for (KingInfo kingInfo: allKings) {
-                    if (receivedMessage.equals(kingInfo.getName())) {
-                        messages = getOneKingInfoStr(kingInfo);
-                        find = true;
-                    }
-                }
-                if (!find) {
-                    messages = "指令集: \n" +
-                            "(red check mark)kb: 列出近10筆王重生表  \n\n" +
-                            "(red check mark)kb all: 列出所王重生表  \n\n" +
-                            "(red check mark)k [王名稱]: 設定死亡時間(當下) \n\n" +
-                            "(red check mark)k [王名稱] [死亡時間]: 設定[死亡時間]，時間規則24小時制[hhmm]或[hhmmss] \n\n" +
-                            "(red check mark)clear [王名稱]: 清除死亡時間和重生時間 \n\n" +
-                            "(red check mark)add tag [名稱] [簡稱]";
+                LineageKingInfoEntity kingInfoEntity = getKingByName(receivedMessage);
+                if (kingInfoEntity != null) {
+                    messages = getOneKingInfoStr(transform(kingInfoEntity));
+                } else {
+                    messages = Common.COMMAND;
                 }
                 break;
         }
         return messages;
     }
+
+    private Date numStrToDate(String numStr, Date now) {
+        String allTime = (numStr.trim().length() == 4) ? numStr.trim() + "00" : numStr.trim();
+        try {
+            return Common.formatter.parse(String.format("%s %s",Common.dateFormat.format(now), allTime));
+        } catch (ParseException e) {
+            log.warn(e.getMessage());
+        }
+        return null;
+    }
+
+    private String command_k(String receivedMessage) {
+        String[] strings = StringUtils.split(receivedMessage, " ");
+        LineageKingInfoEntity king = getKingByName(strings[1]);
+        if (king == null) {
+            return Common.ALERT + "查無此王 : " + strings[1];
+        }
+        Date now = new Date();
+        Date killingDate = null;
+        if (strings.length == 2) {
+            killingDate = now;
+        } else if (strings.length == 3) {
+            Date numStrToDate = numStrToDate(strings[2].trim(), now);
+            if (numStrToDate == null) {
+                return Common.ALERT + "時間錯誤";
+            }
+            killingDate = numStrToDate;
+
+        }
+
+        king.setLastAppear(killingDate);
+        king.setNextAppear(getNextAppear(king.getPeriodMin(),  killingDate));
+        king.setUpdateDate(new Date());
+        lineageKingInfoRepository.save(king);
+        return getOneKingInfoStr(transform(king));
+    }
+
+    private String command_kr(String receivedMessage) {
+        String[] strings = StringUtils.split(receivedMessage, " ");
+        LineageKingInfoEntity king = getKingByName(strings[1]);
+        if (king == null) {
+            return Common.ALERT + "查無此王 : " + strings[1];
+        }
+        Date now = new Date();
+        Date nextAppear = null;
+        if (strings.length == 2) {
+            nextAppear = now;
+        } else if (strings.length == 3) {
+            Date numStrToDate = numStrToDate(strings[2].trim(), now);
+            if (numStrToDate == null) {
+                return Common.ALERT + "時間錯誤";
+            }
+            nextAppear = numStrToDate;
+
+        }
+        king.setLastAppear(null);
+        king.setNextAppear(nextAppear);
+        king.setUpdateDate(new Date());
+        lineageKingInfoRepository.save(king);
+        return getOneKingInfoStr(transform(king));
+    }
+
 
     private List<KingInfo> getSorted(List<KingInfo> kingInfos) {
          Collections.sort(kingInfos);
@@ -299,44 +361,45 @@ public class LineageService {
         return getOneKingInfoStr(transform(king));
     }
 
+    private String command_tag(String receivedMessage) {
+        String[] strings = StringUtils.split(receivedMessage, " ");
+
+        List<KingShortNameEntity> byKingName = kingShortNameRepository.findByKingNameOrShortName(strings[1].trim());
+        List<String> list = byKingName.stream().map(KingShortNameEntity::getShortName).collect(Collectors.toList());
+        return String.format("[%s] : %s", strings[1].trim(),  StringUtils.join(list, ","));
+    }
+
     private String command_addTag(String receivedMessage) {
         String[] strings = StringUtils.split(receivedMessage, " ");
 
         String kingName = strings[2].trim();
-        KingInfo king = findKingByName(kingName);
+        LineageKingInfoEntity king = getKingByName(kingName);
         if (king == null) {
-            return String.format("查無此王 : %s", kingName);
+            return String.format(Common.ALERT + "查無此王 : %s", kingName);
         }
-
-        KingShortNameEntity entity = new KingShortNameEntity();
-        entity.setShortName(strings[3].trim());
-        entity.setKingName(kingName);
-        entity.setUpdateDate(new Date());
-        kingShortNameRepository.save(entity);
-
-        return String.format("新增[%s]的簡稱: %s", kingName, strings[3]);
+        List<String> list = new ArrayList<>();
+        for(int i = 3; i<strings.length; i++) {
+            list.add(strings[i]);
+            KingShortNameEntity entity = new KingShortNameEntity();
+            entity.setShortName(strings[i].trim());
+            entity.setKingName(kingName);
+            entity.setUpdateDate(new Date());
+            kingShortNameRepository.save(entity);
+        }
+        return String.format(Common.PENCIL + "新增[%s]的簡稱: %s", kingName, StringUtils.join(list, ","));
     }
-
-
-//    private String getKingsInfoStr(KingInfo kingInfo) {
-//        String randomStr = kingInfo.isRandom() ? "隨" : "必";
-//        String lastAppearStr = kingInfo.getLastAppear() == null ? "  -----  " : timeOnlyFormat.format(kingInfo.getLastAppear());
-//        String nextAppearStr = kingInfo.getNextAppear() == null ? "  -----  " : timeOnlyFormat.format(kingInfo.getNextAppear());
-//       return String.format("%s [%s]-%s(%s) 死亡時間:%s 重生時間:%s \n",
-//                kingInfo.getName(), kingInfo.getLocation(), randomStr, lastAppearStr, nextAppearStr);
-//    }
 
     private String getKingsInfoStrForTen(KingInfo kingInfo) {
         String randomStr = kingInfo.isRandom() ? "隨" : "必";
-        String nextAppearStr = kingInfo.getNextAppear() == null ? "  -----  " : timeOnlyFormat.format(kingInfo.getNextAppear());
-        return String.format("%s [%s]-%s(%s) \n\n", nextAppearStr, kingInfo.getName(), kingInfo.getLocation(), randomStr);
+        String nextAppearStr = kingInfo.getNextAppear() == null ? "  -----  " : Common.timeOnlyFormat.format(kingInfo.getNextAppear());
+        return String.format("%s %s [%s]-%s(%s) \n\n", Common.FIRE, nextAppearStr, kingInfo.getName(), kingInfo.getLocation(), randomStr);
     }
 
     private String getOneKingInfoStr(KingInfo kingInfo) {
         String randomStr = kingInfo.isRandom() ? "隨" : "必";
-        String lastAppearStr = kingInfo.getLastAppear() == null ? " ----- " : sdFormat.format(kingInfo.getLastAppear());
-        String nextAppearStr = kingInfo.getNextAppear() == null ? " ----- " : sdFormat.format(kingInfo.getNextAppear());
-        return String.format("[%s]-%s(%s) \n死亡時間:%s\n重生時間:%s",
+        String lastAppearStr = kingInfo.getLastAppear() == null ? " ----- " : Common.sdFormat.format(kingInfo.getLastAppear());
+        String nextAppearStr = kingInfo.getNextAppear() == null ? " ----- " : Common.sdFormat.format(kingInfo.getNextAppear());
+        return String.format("%s [%s]-%s(%s) \n死亡時間:%s\n重生時間:%s", Common.DEVIL,
                 kingInfo.getName(), kingInfo.getLocation(), randomStr, lastAppearStr, nextAppearStr);
     }
 
@@ -345,15 +408,22 @@ public class LineageService {
     }
 
     private LineageKingInfoEntity getKingByName(String name) {
-        LineageKingInfoEntity byKingName = lineageKingInfoRepository.findByKingName(name);
+        List<KingShortNameEntity> byShortName = kingShortNameRepository.findByKingNameOrShortName(name);
+        String kingName = byShortName == null ? name : byShortName.get(0).getKingName();
+        LineageKingInfoEntity byKingName = lineageKingInfoRepository.findByKingName(kingName);
         if (byKingName != null) {
             return byKingName;
         }
-        KingShortNameEntity byShortName = kingShortNameRepository.findByShortName(name);
-        if (byShortName == null) {
-            return null;
-        }
-        return getKingByName(byShortName.getKingName());
+        return null;
+    }
+
+    public void updateNextAppear(List<String> ids, Date now) {
+        Iterable<LineageKingInfoEntity> kings = lineageKingInfoRepository.findAllById(ids);
+        kings.forEach(entity -> {
+            entity.setNextAppear(getNextAppear(entity.getPeriodMin(), entity.getLastAppear()));
+            entity.setUpdateDate(now);
+        });
+        lineageKingInfoRepository.saveAll(kings);
     }
 
     private KingInfo transform(LineageKingInfoEntity lineageKingInfoEntity) {
@@ -368,4 +438,23 @@ public class LineageService {
         return kingInfo;
     }
 
+    public void updateKingInfoList() {
+        kingInfoList = getAllKings();
+    }
+
+    public List<KingInfo> getKingInfoList() {
+        return kingInfoList;
+    }
+
+    public void setKingInfoList(List<KingInfo> kingInfoList) {
+        this.kingInfoList = kingInfoList;
+    }
+
+    public List<String> getUserInfoList() {
+        return userInfoList;
+    }
+
+    public void setUserInfoList(List<String> userInfoList) {
+        this.userInfoList = userInfoList;
+    }
 }

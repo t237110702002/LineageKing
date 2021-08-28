@@ -12,12 +12,15 @@ import com.linecorp.bot.model.message.StickerMessage;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.model.response.BotApiResponse;
 import com.tinatest.line_bot.dto.KingInfo;
+import com.tinatest.line_bot.model.UserInfoEntity;
+import com.tinatest.line_bot.model.common.Common;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,11 +37,6 @@ public class LineBotService {
     private final LineMessagingClient client = LineMessagingClient
             .builder(ACCESS_TOKEN)
             .build();
-
-    private static final SimpleDateFormat tFormat = new SimpleDateFormat("HH:mm:ss");
-
-    private static Message message;
-    private static String msg;
 
     @Autowired
     private LineageService lineageService;
@@ -65,10 +63,14 @@ public class LineBotService {
 
         if (receivedMessage.startsWith("push:")) {
             String pushMsg = StringUtils.substringAfter(receivedMessage, "push:");
-
             Broadcast broadcast = new Broadcast(new TextMessage(pushMsg));
             return client.broadcast(broadcast).get();
+        } else if (StringUtils.equalsIgnoreCase(receivedMessage, "enable")) {
+            lineageService.updateUserNotity(event.getSource().getUserId(), true);
+        } else if (StringUtils.equalsIgnoreCase(receivedMessage, "disable")) {
+            lineageService.updateUserNotity(event.getSource().getUserId(), false);
         }
+
         return client.replyMessage(new ReplyMessage(replyToken, new TextMessage(lineageService.getMsg(receivedMessage)))).get();
     }
 
@@ -77,36 +79,13 @@ public class LineBotService {
                         content.getPackageId(), content.getStickerId())));
     }
 
-    @Scheduled(cron=  "0 */2 * ? * *")
-    public void checkTask() {
-        Date now = new Date();
-        log.info("================> checkTask Date:" + now);
-        boolean kingWillAppear = false;
-        List<KingInfo> allKings = lineageService.getAllKings();
-        message = null;
-        msg = "";
-        for (KingInfo kingInfo: allKings) {
-            if (kingInfo.getNextAppear() != null) {
-                int min = (int) ((kingInfo.getNextAppear().getTime() - now.getTime()) / (1000*60));
-//                System.out.println(String.format("%s --> 下次出現時間: %s",kingInfo.getName(), sdFormat.format(kingInfo.getNextAppear())));
-                if (min < 5 && min > 0) {
-                    kingWillAppear = true;
-                    String randomStr = kingInfo.isRandom() ? "隨" : "必";
-                    msg = msg + String.format("[%s]-%s(%s)\n 重生時間: %s\n\n",
-                            kingInfo.getName(), kingInfo.getLocation(), randomStr, tFormat.format(kingInfo.getNextAppear()));
-                }
-            }
-        }
-        if (kingWillAppear) {
-            message = new TextMessage("<<出王通知>>\n" + msg);
-
-            Broadcast broadcast = new Broadcast(message);
-            client.broadcast(broadcast);
-        }
-    }
 
     public void replyText(String replyToken, String message) {
         client.replyMessage(new ReplyMessage(replyToken, new TextMessage(message)));
+    }
+
+    public void pushMsg(List<String> ids, Message message) {
+        ids.forEach(id -> client.pushMessage(new PushMessage(id, message)));
     }
 
 }
