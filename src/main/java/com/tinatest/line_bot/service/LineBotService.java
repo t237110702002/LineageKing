@@ -116,7 +116,7 @@ public class LineBotService {
             msg = lineageService.getMsg(receivedMessage);
         }
 //        return client.replyMessage(new ReplyMessage(replyToken, msg)).get();
-        return client.pushMessage(new PushMessage("Ud62a356eedbea86f5231532bae38da4c", msg)).get();
+        return client.pushMessage(new PushMessage(replyToken, msg)).get();
     }
 
     public void handleSticker(String replyToken, StickerMessageContent content) {
