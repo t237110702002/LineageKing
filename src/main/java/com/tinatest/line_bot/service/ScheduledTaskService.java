@@ -5,7 +5,9 @@ import com.linecorp.bot.model.message.TextMessage;
 import com.tinatest.line_bot.dto.KingInfo;
 import com.tinatest.line_bot.model.common.Common;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -34,8 +36,12 @@ public class ScheduledTaskService {
     @Autowired
     private UserService userService;
 
+    @Value("${line.bot.push.enable:false}")
+    private String pushEnable;
+
     @PostConstruct
     public void init(){
+        log.error(String.format(">>>>>>>>>> 推播功能 : %s <<<<<<<<<<", (BooleanUtils.toBoolean(pushEnable) ? "開啟" : "關閉")));
         checkTask();
     }
 
@@ -72,7 +78,7 @@ public class ScheduledTaskService {
         if (needUpdates.size() > 0) {
             lineageService.updateNextAppear(needUpdates, now);
         }
-        if (kingWillAppear) {
+        if (kingWillAppear && BooleanUtils.toBoolean(pushEnable)) {
             message = new TextMessage(FIRE + "出王通知" + msg);
             lineBotService.pushMsg(userService.getUserInfoList(), message);
         }

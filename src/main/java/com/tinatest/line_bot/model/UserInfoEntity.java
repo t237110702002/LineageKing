@@ -23,7 +23,6 @@ public class UserInfoEntity {
     @Column(name = "approve")
     private Boolean approve;
 
-
     @Column(name = "update_date")
     private Date updateDate;
 

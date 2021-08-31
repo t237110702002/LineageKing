@@ -1,13 +1,25 @@
 package com.tinatest.line_bot.service;
 
+import com.linecorp.bot.model.action.Action;
+import com.linecorp.bot.model.message.FlexMessage;
+import com.linecorp.bot.model.message.Message;
+import com.linecorp.bot.model.message.TextMessage;
+import com.linecorp.bot.model.message.flex.component.Box;
+import com.linecorp.bot.model.message.flex.component.FlexComponent;
+import com.linecorp.bot.model.message.flex.component.Text;
+import com.linecorp.bot.model.message.flex.component.Text.TextWeight;
+import com.linecorp.bot.model.message.flex.container.Bubble;
+import com.linecorp.bot.model.message.flex.container.Bubble.BubbleSize;
+import com.linecorp.bot.model.message.flex.container.BubbleStyles;
+import com.linecorp.bot.model.message.flex.container.BubbleStyles.BlockStyle;
+import com.linecorp.bot.model.message.flex.unit.FlexDirection;
+import com.linecorp.bot.model.message.flex.unit.FlexLayout;
 import com.tinatest.line_bot.dto.KingInfo;
 import com.tinatest.line_bot.dto.KingInfoRequest;
 import com.tinatest.line_bot.model.KingShortNameEntity;
 import com.tinatest.line_bot.model.KingShortNameRepository;
 import com.tinatest.line_bot.model.LineageKingInfoEntity;
 import com.tinatest.line_bot.model.LineageKingInfoRepository;
-import com.tinatest.line_bot.model.UserInfoEntity;
-import com.tinatest.line_bot.model.UserInfoRepository;
 import com.tinatest.line_bot.model.common.Common;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -17,7 +29,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -186,9 +197,10 @@ public class LineageService {
         return "ok";
     }
 
-    public String getMsg(String receivedMessage) {
+    public Message getMsg(String receivedMessage) {
         String keyword = String.format(receivedMessage);
         List<KingInfo> allKings = getAllKings();
+        Message resultMsg = new TextMessage("");
         String messages = "";
 
         if (receivedMessage.startsWith("k ")) {
@@ -231,7 +243,6 @@ public class LineageService {
                 messages = command_ky(receivedMessage);
                 break;
             case "kb all":
-//                List<KingInfo> sorted = getSorted(allKings);
                 for (KingInfo kingInfo: allKings) {
                     messages = messages + getKingsInfoStrForTen(kingInfo);
                 }
@@ -241,11 +252,13 @@ public class LineageService {
                 if (CollectionUtils.isEmpty(result)) {
                     messages = Common.ALERT + "無出王資訊" +Common.PENCIL;
                 } else {
-//                    List<KingInfo> sortedForTen = getSorted(result);
                     int size = result.size() < 10 ? result.size() : 10;
+                    List<FlexComponent> flexComponents = new ArrayList<>();
                     for (int i = 0; i < size; i++) {
-                        messages = messages + getKingsInfoStrForTen(result.get(i));
+//                        messages = messages + getKingsInfoStrForTen(result.get(i)); // just text msg
+                        flexComponents.add(getFlex(getKingsInfoStrForTen(result.get(i))));
                     }
+                    resultMsg = getAppearTable(flexComponents);
                 }
                 break;
             case "help":
@@ -258,7 +271,43 @@ public class LineageService {
                 }
                 break;
         }
-        return messages;
+        if (StringUtils.isNotBlank(messages)) {
+            return new TextMessage(messages);
+        }
+        return resultMsg;
+    }
+
+    private Text getFlex(String oneKbInfo) {
+        return Text.builder().text(oneKbInfo).build();
+    }
+
+    public FlexMessage getAppearTable(List<FlexComponent> flexComponents) {
+
+        FlexDirection direction = FlexDirection.LTR;
+
+        BubbleStyles styles = BubbleStyles.builder().footer(BlockStyle.builder().backgroundColor("#639594").build()).build();
+
+        Box header = Box.builder()
+                .layout(FlexLayout.VERTICAL)
+                .content(Box.builder()
+                        .layout(FlexLayout.HORIZONTAL)
+                        .contents(Text.builder().text("出王重生表").color("#FFFFFF").weight(TextWeight.BOLD).build())
+                        .build())
+                .backgroundColor("#639594").build();
+
+        Box body = Box.builder()
+                .layout(FlexLayout.VERTICAL)
+                .contents(flexComponents)
+                .build();
+
+        Box footer = Box.builder().layout(FlexLayout.VERTICAL).build();
+        BubbleSize size;
+        Action action;
+
+        Bubble bubble = Bubble.builder().direction(direction).header(header).body(body).styles(styles).build();
+        return FlexMessage.builder().altText("出王重生表").contents(bubble).build();
+
+//        client.pushMessage(new PushMessage("Ud62a356eedbea86f5231532bae38da4c", flexMessage));
     }
 
     private Date numStrToDate(String numStr, Date now) {

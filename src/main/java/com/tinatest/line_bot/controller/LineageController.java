@@ -87,6 +87,6 @@ public class LineageController {
         if (!token.equals(adminToken)) {
             return "AUTH FAIL";
         }
-        return lineageService.getMsg(command);
+        return lineageService.getMsg(command).toString();
     }
 }
