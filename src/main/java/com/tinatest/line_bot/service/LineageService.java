@@ -12,6 +12,7 @@ import com.linecorp.bot.model.message.flex.container.Bubble;
 import com.linecorp.bot.model.message.flex.container.Bubble.BubbleSize;
 import com.linecorp.bot.model.message.flex.container.BubbleStyles;
 import com.linecorp.bot.model.message.flex.container.BubbleStyles.BlockStyle;
+import com.linecorp.bot.model.message.flex.unit.FlexAlign;
 import com.linecorp.bot.model.message.flex.unit.FlexDirection;
 import com.linecorp.bot.model.message.flex.unit.FlexLayout;
 import com.tinatest.line_bot.dto.KingInfo;
@@ -281,15 +282,17 @@ public class LineageService {
 
         String randomStr = kingInfo.getRandom() ? "隨" : "必";
         String nextAppearStr = kingInfo.getNextAppear() == null ? "  -----  " : Common.timeOnlyFormat.format(kingInfo.getNextAppear());
-        String missStr = (kingInfo.getMissCount() == null || kingInfo.getMissCount() == 0) ? "" : "【過" + kingInfo.getMissCount() + "】";
+        String missStr = (kingInfo.getMissCount() == null || kingInfo.getMissCount() == 0) ? "    " : "【過" + kingInfo.getMissCount() + "】";
         String name = String.format("%s-%s(%s)", kingInfo.getKingName(), kingInfo.getLocation(), randomStr);
+
         return Box.builder()
+                .height("25px")
                 .layout(FlexLayout.HORIZONTAL)
-                .contents(Text.builder().text(nextAppearStr).flex(3).build(),
-                        Text.builder().text(name).flex(5).build(),
-                        Text.builder().text(missStr).flex(2).build())
-                .build()
-         ;
+                .contents(Text.builder().text(nextAppearStr).flex(3).size("xs").weight(TextWeight.BOLD).build(),
+                        Text.builder().text(name).flex(6).size("xs").build(),
+                        Text.builder().text(missStr).flex(3).size("xs").color("#DD5555").align(FlexAlign.END).build())
+                .build();
+
     }
 
     public FlexMessage getAppearTable(List<FlexComponent> flexComponents) {

@@ -1,6 +1,9 @@
 package com.tinatest.line_bot.controller;
 
 import com.google.gson.Gson;
+import com.linecorp.bot.client.LineMessagingClient;
+import com.linecorp.bot.model.PushMessage;
+import com.linecorp.bot.model.message.Message;
 import com.tinatest.line_bot.dto.KingInfo;
 import com.tinatest.line_bot.dto.KingInfoRequest;
 import com.tinatest.line_bot.dto.UpdateKingRequest;
@@ -32,6 +35,9 @@ public class LineageController {
 
     @Autowired
     private LineageService lineageService;
+
+    @Autowired
+    private LineMessagingClient client;
 
     @GetMapping(value = "/page")
     public String mainPage(HttpServletRequest request, HttpServletResponse response) {
@@ -87,6 +93,8 @@ public class LineageController {
         if (!token.equals(adminToken)) {
             return "AUTH FAIL";
         }
-        return lineageService.getMsg(command).toString();
+        Message msg = lineageService.getMsg(command);
+        client.pushMessage(new PushMessage("Ud62a356eedbea86f5231532bae38da4c", msg));
+        return msg.toString();
     }
 }
