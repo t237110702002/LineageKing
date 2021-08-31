@@ -9,6 +9,7 @@ public class KingInfoRequest {
     private boolean random;
     private String lastAppear;
     private String nextAppear;
+    private Integer missCount;
 
 
     public String getId() {
@@ -66,5 +67,13 @@ public class KingInfoRequest {
 
     public void setNextAppear(String nextAppear) {
         this.nextAppear = nextAppear;
+    }
+
+    public Integer getMissCount() {
+        return missCount;
+    }
+
+    public void setMissCount(Integer missCount) {
+        this.missCount = missCount;
     }
 }

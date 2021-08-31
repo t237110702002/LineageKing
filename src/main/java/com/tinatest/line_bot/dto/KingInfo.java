@@ -11,6 +11,7 @@ public class KingInfo implements Comparable<KingInfo> {
     private boolean random;
     private Date lastAppear;
     private Date nextAppear;
+    private Integer missCount;
 
     public KingInfo() {
     }
@@ -79,6 +80,14 @@ public class KingInfo implements Comparable<KingInfo> {
 
     public void setRandom(boolean random) {
         this.random = random;
+    }
+
+    public Integer getMissCount() {
+        return missCount;
+    }
+
+    public void setMissCount(Integer missCount) {
+        this.missCount = missCount;
     }
 
     @Override

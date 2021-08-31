@@ -15,16 +15,21 @@ public class Common {
     public static final String ALERT = String.valueOf(Character.toChars(Integer.decode("0x100035")));
     public static final String PENCIL = String.valueOf(Character.toChars(Integer.decode("0x100041")));
     public static final String HI = String.valueOf(Character.toChars(Integer.decode("0x10007F")));
-
+    public static final String CLOCK = String.valueOf(Character.toChars(Integer.decode("0x100071")));
+    public static final String CRY = String.valueOf(Character.toChars(Integer.decode("0x100094")));
+    public static final String SMILE = String.valueOf(Character.toChars(Integer.decode("0x100090")));
 
     public static final String COMMAND = "[指令集] \n" +
+            BLING+ "enable/disable: 開啟/關閉通知  \n\n" +
             BLING+ "kb: 列出近10筆王重生表  \n\n" +
             BLING+ "kb all: 列出所王重生表  \n\n" +
             BLING+ "k [王名稱]: 設定死亡時間(當下) \n\n" +
             BLING+ "k [王名稱] [死亡時間]: 設定指定死亡時間\n\n" +
             BLING+ "clear [王名稱]: 清除死亡時間和重生時間 \n\n" +
-            BLING+ "add tag [王名稱] [簡稱] \n\n" +
-            BLING+ "kr [王名稱] [重生時間] \n\n" +
+            BLING+ "add tag [王名稱] [簡稱]: 新增王的簡稱 \n\n" +
+            BLING+ "tag [王名稱]: 列出王的所有簡稱 \n\n" +
+            BLING+ "kr [王名稱] [重生時間]: 直接指定重生時間 \n\n" +
+            BLING+ "ky [王名稱] [死亡時間]: 指定前一天死亡時間(跨日時使用) \n\n" +
             ALERT+"時間設定規則24小時制[hhmm]或[hhmmss]"
             ;
 

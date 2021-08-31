@@ -8,6 +8,8 @@ import java.util.List;
 @Repository
 public interface UserInfoRepository extends CrudRepository<UserInfoEntity, String> {
 
-    List<UserInfoEntity> findByNotify(boolean notify);
+    List<UserInfoEntity> findByNotifyAndApprove(boolean notify, boolean approve);
+
+    UserInfoEntity findByUserIdContains(String code);
 
 }

@@ -3,9 +3,12 @@ package com.tinatest.line_bot.controller;
 import com.google.gson.Gson;
 import com.tinatest.line_bot.dto.KingInfo;
 import com.tinatest.line_bot.dto.KingInfoRequest;
+import com.tinatest.line_bot.dto.UpdateKingRequest;
 import com.tinatest.line_bot.service.LineageService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -24,6 +27,8 @@ import java.util.List;
 @Slf4j
 public class LineageController {
 
+    @Value("${admin.token}")
+    private String adminToken;
 
     @Autowired
     private LineageService lineageService;
@@ -36,19 +41,20 @@ public class LineageController {
     @PostMapping(value = "/create")
     @ResponseBody
     public String inputInfo(HttpServletRequest req) {
-        String id = req.getParameter("kingId");
-        String name = req.getParameter("name");
-        String location = req.getParameter("location");
-        String period = req.getParameter("period");
-        String random = req.getParameter("random");
-        String lastAppear = req.getParameter("lastAppear");
-
-        try {
-            String result = lineageService.createData(id, name, location, period, lastAppear, random);
-            return result;
-        } catch (Exception e) {
-            return "FAIL";
-        }
+        return null;
+//        String id = req.getParameter("kingId");
+//        String name = req.getParameter("name");
+//        String location = req.getParameter("location");
+//        String period = req.getParameter("period");
+//        String random = req.getParameter("random");
+//        String lastAppear = req.getParameter("lastAppear");
+//
+//        try {
+//            String result = lineageService.createData(id, name, location, period, lastAppear, random);
+//            return result;
+//        } catch (Exception e) {
+//            return "FAIL";
+//        }
     }
 
     @GetMapping(value = "/kinglist")
@@ -67,14 +73,20 @@ public class LineageController {
     @PostMapping(value = "/update")
     @Produces("application/json")
     @ResponseBody
-    public String updateList(@RequestBody List<KingInfoRequest> kingInfoList) {
-        return lineageService.goUpdate(kingInfoList);
+    public String updateList(@RequestBody UpdateKingRequest request) {
+        if (!StringUtils.equals(request.getToken(), adminToken)) {
+            return "AUTH FAIL";
+        }
+        return lineageService.goUpdate(request.getKingInfoList());
     }
 
     @PostMapping(value = "/test/command")
     @Produces("application/json")
     @ResponseBody
-    public String command(HttpServletRequest req, @RequestParam String command) {
+    public String command(HttpServletRequest req, @RequestParam String token, @RequestParam String command) {
+        if (!token.equals(adminToken)) {
+            return "AUTH FAIL";
+        }
         return lineageService.getMsg(command);
     }
 }

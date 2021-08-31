@@ -1,6 +1,5 @@
 package com.tinatest.line_bot.service;
 
-import com.linecorp.bot.model.Broadcast;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TextMessage;
 import com.tinatest.line_bot.dto.KingInfo;
@@ -10,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.net.URISyntaxException;
+import javax.annotation.PostConstruct;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,8 +22,6 @@ public class ScheduledTaskService {
     private static final SimpleDateFormat tFormat = new SimpleDateFormat("HH:mm:ss");
     private static final String FIRE = String.valueOf(Character.toChars(Integer.decode("0x1000A4")));
     private static List<String> needUpdates;
-
-
     private static Message message;
     private static String msg;
 
@@ -33,6 +30,14 @@ public class ScheduledTaskService {
 
     @Autowired
     private LineBotService lineBotService;
+
+    @Autowired
+    private UserService userService;
+
+    @PostConstruct
+    public void init(){
+        checkTask();
+    }
 
     @Scheduled(cron=  "0 */50 * ? * *")
     public void updateKingInfoList() {
@@ -54,8 +59,10 @@ public class ScheduledTaskService {
                 if (min > 0 && min < 5) {
                     log.info(String.format("%s --> 下次出現時間: %s",kingInfo.getName(), Common.sdFormat.format(kingInfo.getNextAppear())));
                     String randomStr = kingInfo.isRandom() ? "隨" : "必";
-                    msg = msg + String.format("\n\n [%s]-%s(%s)\n 重生時間: %s",
-                            kingInfo.getName(), kingInfo.getLocation(), randomStr, tFormat.format(kingInfo.getNextAppear()));
+                    String missStr = getMissStr(kingInfo.getMissCount());
+                    msg = msg + String.format("\n\n%s[%s]-%s(%s)\n%s%s重生時間 : %s", Common.DEVIL,
+                            kingInfo.getName(), kingInfo.getLocation(), randomStr, missStr,
+                            Common.CLOCK, tFormat.format(kingInfo.getNextAppear()));
                     kingWillAppear = true;
                 } else if (min < -30) {
                     needUpdates.add(kingInfo.getId());
@@ -66,10 +73,12 @@ public class ScheduledTaskService {
             lineageService.updateNextAppear(needUpdates, now);
         }
         if (kingWillAppear) {
-            message = new TextMessage(FIRE + "出王通知" + FIRE +"" + msg);
-            lineBotService.pushMsg(lineageService.getUserInfoList(), message);
-//            Broadcast broadcast = new Broadcast(message);
-//            client.broadcast(broadcast);
+            message = new TextMessage(FIRE + "出王通知" + msg);
+            lineBotService.pushMsg(userService.getUserInfoList(), message);
         }
+    }
+
+    private String getMissStr(Integer missCount) {
+        return (missCount == null || missCount == 0) ? "" : Common.CRY + "您已錯過 : " + missCount + "次了\n";
     }
 }

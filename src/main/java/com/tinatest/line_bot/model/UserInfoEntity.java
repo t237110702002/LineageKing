@@ -15,7 +15,14 @@ public class UserInfoEntity {
     private String userId;
 
     @Column(name = "notify")
-    private boolean notify;
+    private Boolean notify;
+
+    @Column(name = "user_name")
+    private String userName;
+
+    @Column(name = "approve")
+    private Boolean approve;
+
 
     @Column(name = "update_date")
     private Date updateDate;
@@ -28,12 +35,28 @@ public class UserInfoEntity {
         this.userId = userId;
     }
 
-    public boolean getNotify() {
+    public Boolean getNotify() {
         return notify;
     }
 
-    public void setNotify(boolean notify) {
+    public void setNotify(Boolean notify) {
         this.notify = notify;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public Boolean getApprove() {
+        return approve;
+    }
+
+    public void setApprove(Boolean approve) {
+        this.approve = approve;
     }
 
     public Date getUpdateDate() {

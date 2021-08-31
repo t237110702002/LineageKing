@@ -4,6 +4,8 @@ import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.Broadcast;
 import com.linecorp.bot.model.PushMessage;
 import com.linecorp.bot.model.ReplyMessage;
+import com.linecorp.bot.model.event.FollowEvent;
+import com.linecorp.bot.model.event.JoinEvent;
 import com.linecorp.bot.model.event.MessageEvent;
 import com.linecorp.bot.model.event.message.StickerMessageContent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
@@ -11,20 +13,12 @@ import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.StickerMessage;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.model.response.BotApiResponse;
-import com.tinatest.line_bot.dto.KingInfo;
-import com.tinatest.line_bot.model.UserInfoEntity;
 import com.tinatest.line_bot.model.common.Common;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -32,14 +26,14 @@ import java.util.concurrent.ExecutionException;
 @Slf4j
 public class LineBotService {
 
-    private static final String ACCESS_TOKEN = "yXg2XLMonW2Odz62Jc8bOW5TW5aYEOwP4yAJmRk53dp9BAV4RC+nunO5IAqXMSCK/8z7WcYUe655wZpjl2FttMkH3KZ4CLMjZhqDy8snZCtkJCWFCHQcCMWiQSariPJiU5InRcF75xmFeowOdyAM7AdB04t89/1O/w1cDnyilFU=";
-
-    private final LineMessagingClient client = LineMessagingClient
-            .builder(ACCESS_TOKEN)
-            .build();
+    @Autowired
+    private LineMessagingClient client;
 
     @Autowired
     private LineageService lineageService;
+
+    @Autowired
+    private UserService userService;
 
     public void pushMessage(String userId) {
         final TextMessage textMessage = new TextMessage("hello");
@@ -56,29 +50,60 @@ public class LineBotService {
         System.out.println(botApiResponse);
     }
 
-    public BotApiResponse reply(MessageEvent<TextMessageContent> event) throws IOException, ExecutionException, InterruptedException {
+    public boolean followEvent(FollowEvent event) {
+        try {
+            userService.createUser(event.getSource().getSenderId());
+            return true;
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return false;
+        }
+    }
 
+    public boolean joinEvent(JoinEvent event) {
+        try {
+            userService.createUser(event.getSource().getSenderId());
+            return true;
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return false;
+        }
+    }
+
+    public BotApiResponse reply(MessageEvent<TextMessageContent> event) throws  ExecutionException, InterruptedException {
         String receivedMessage = event.getMessage().getText();
         String replyToken = event.getReplyToken();
+        String msg;
+        receivedMessage = receivedMessage.toLowerCase();
+        receivedMessage = receivedMessage.trim();
 
-        if (receivedMessage.startsWith("push:")) {
-            String pushMsg = StringUtils.substringAfter(receivedMessage, "push:");
+        if (receivedMessage.startsWith("push:") && userService.isUserAdmin(event.getSource().getUserId())) {
+            String pushMsg = StringUtils.substringAfter(receivedMessage, "push:").trim();
             Broadcast broadcast = new Broadcast(new TextMessage(pushMsg));
             return client.broadcast(broadcast).get();
+        } else if (receivedMessage.startsWith("activate:") && userService.isUserAdmin(event.getSource().getUserId())) {
+            String code = StringUtils.substringAfter(receivedMessage, "activate:").trim();
+            boolean success = userService.activateUser(code);
+            if (success) {
+                msg = "啟用成功: " + code;
+                client.pushMessage(new PushMessage(code, new TextMessage(Common.ALERT + "小幫手啟用成功! 請使用help查看指令集!")));
+            } else {
+                msg = "啟用失敗: " + code;
+            }
         } else if (StringUtils.equalsIgnoreCase(receivedMessage, "enable")) {
-            lineageService.updateUserNotity(event.getSource().getUserId(), true);
+            msg = userService.updateUserNotify(event.getSource().getSenderId(), true);
         } else if (StringUtils.equalsIgnoreCase(receivedMessage, "disable")) {
-            lineageService.updateUserNotity(event.getSource().getUserId(), false);
+            msg = userService.updateUserNotify(event.getSource().getSenderId(), false);
+        } else {
+            msg = lineageService.getMsg(receivedMessage);
         }
-
-        return client.replyMessage(new ReplyMessage(replyToken, new TextMessage(lineageService.getMsg(receivedMessage)))).get();
+        return client.replyMessage(new ReplyMessage(replyToken, new TextMessage(msg))).get();
     }
 
     public void handleSticker(String replyToken, StickerMessageContent content) {
         client.replyMessage(new ReplyMessage(replyToken, new StickerMessage(
                         content.getPackageId(), content.getStickerId())));
     }
-
 
     public void replyText(String replyToken, String message) {
         client.replyMessage(new ReplyMessage(replyToken, new TextMessage(message)));

@@ -1,25 +1,22 @@
 package com.tinatest.line_bot.controller;
 
-import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import com.linecorp.bot.model.ReplyMessage;
 import com.linecorp.bot.model.event.Event;
 import com.linecorp.bot.model.event.FollowEvent;
+import com.linecorp.bot.model.event.JoinEvent;
 import com.linecorp.bot.model.event.MessageEvent;
-import com.linecorp.bot.model.event.ReplyEvent;
 import com.linecorp.bot.model.event.UnfollowEvent;
 import com.linecorp.bot.model.event.UnknownEvent;
 import com.linecorp.bot.model.event.message.StickerMessageContent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
-import com.linecorp.bot.model.message.Message;
-import com.linecorp.bot.model.message.StickerMessage;
 import com.linecorp.bot.model.response.BotApiResponse;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
+import com.tinatest.line_bot.model.common.Common;
 import com.tinatest.line_bot.service.LineBotService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 @Slf4j
 @LineMessageHandler
@@ -33,7 +30,7 @@ public class MessageHandler {
     }
 
     @EventMapping
-    public void handleTextMessageEvent(MessageEvent<TextMessageContent> event) throws IOException, ExecutionException, InterruptedException {
+    public void handleTextMessageEvent(MessageEvent<TextMessageContent> event) throws ExecutionException, InterruptedException {
 //        System.out.println("event: " + event);
         BotApiResponse response = lineBotService.reply(event);
 //        System.out.println("Sent messages: " + response);
@@ -62,6 +59,21 @@ public class MessageHandler {
     @EventMapping
     public void handleFollowEvent(FollowEvent event) {
         String replyToken = event.getReplyToken();
-        lineBotService.replyText(replyToken, "Got followed event");
+        boolean success = lineBotService.followEvent(event);
+        if (success) {
+            String code = StringUtils.substring(event.getSource().getUserId(), 1, 6);
+            lineBotService.replyText(replyToken, String.format("Hi~ 我是Tina小幫手! 請先繳費並洽管理員啟用通知功能，謝謝! %s\n請告知管理員您的代碼 : %s", Common.SMILE, code));
+        }
+    }
+
+    @EventMapping
+    public void handleJoinEvent(JoinEvent event) {
+        String replyToken = event.getReplyToken();
+        boolean success = lineBotService.joinEvent(event);
+        if (success) {
+            String code = StringUtils.substring(event.getSource().getUserId(), 1, 6);
+            lineBotService.replyText(replyToken, String.format("Hi~ 我是Tina小幫手! 請先繳費並洽管理員啟用通知功能，謝謝! %s\n請告知管理員您的代碼 : %s", Common.SMILE, code));
+        }
+
     }
 }

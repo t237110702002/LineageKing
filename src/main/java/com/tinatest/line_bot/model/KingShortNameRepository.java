@@ -10,5 +10,5 @@ public interface KingShortNameRepository extends CrudRepository<KingShortNameEnt
 
     KingShortNameEntity findByShortName(String shortName);
 
-    List<KingShortNameEntity> findByKingNameOrShortName(String name);
+    List<KingShortNameEntity> findByKingNameOrShortName(String name, String shortName);
 }

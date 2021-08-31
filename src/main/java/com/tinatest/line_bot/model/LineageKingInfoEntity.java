@@ -27,7 +27,7 @@ public class LineageKingInfoEntity {
     private String location;
 
     @Column(name = "period_min")
-    private int periodMin;
+    private Integer periodMin;
 
     @Column(name = "last_appear")
     private Date lastAppear;
@@ -37,6 +37,9 @@ public class LineageKingInfoEntity {
 
     @Column(name = "random")
     private Boolean random;
+
+    @Column(name = "miss_count")
+    private Integer missCount;
 
     @Column(name = "update_date")
     private Date updateDate;
@@ -95,6 +98,14 @@ public class LineageKingInfoEntity {
 
     public void setRandom(Boolean random) {
         this.random = random;
+    }
+
+    public Integer getMissCount() {
+        return missCount;
+    }
+
+    public void setMissCount(Integer missCount) {
+        this.missCount = missCount;
     }
 
     public Date getUpdateDate() {
