@@ -256,7 +256,7 @@ public class LineageService {
                     List<FlexComponent> flexComponents = new ArrayList<>();
                     for (int i = 0; i < size; i++) {
 //                        messages = messages + getKingsInfoStrForTen(result.get(i)); // just text msg
-                        flexComponents.add(getFlex(getKingsInfoStrForTenNoEmoji(result.get(i))));
+                        flexComponents.add(getFlex(result.get(i)));
                     }
                     resultMsg = getAppearTable(flexComponents);
                 }
@@ -277,8 +277,19 @@ public class LineageService {
         return resultMsg;
     }
 
-    private Text getFlex(String oneKbInfo) {
-        return Text.builder().text(oneKbInfo).size("xs").build();
+    private Box getFlex(LineageKingInfoEntity kingInfo) {
+
+        String randomStr = kingInfo.getRandom() ? "隨" : "必";
+        String nextAppearStr = kingInfo.getNextAppear() == null ? "  -----  " : Common.timeOnlyFormat.format(kingInfo.getNextAppear());
+        String missStr = (kingInfo.getMissCount() == null || kingInfo.getMissCount() == 0) ? "" : "【過" + kingInfo.getMissCount() + "】";
+        String name = String.format("%s-%s(%s)", kingInfo.getKingName(), kingInfo.getLocation(), randomStr);
+        return Box.builder()
+                .layout(FlexLayout.HORIZONTAL)
+                .contents(Text.builder().text(nextAppearStr).flex(3).build(),
+                        Text.builder().text(name).flex(5).build(),
+                        Text.builder().text(missStr).flex(2).build())
+                .build()
+         ;
     }
 
     public FlexMessage getAppearTable(List<FlexComponent> flexComponents) {
