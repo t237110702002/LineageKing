@@ -92,18 +92,27 @@ public class LineBotService {
         String replyToken = event.getReplyToken();
         Message msg;
 
-        if (receivedMessage.startsWith("push:") && userService.isUserAdmin(event.getSource().getUserId())) {
-            String pushMsg = StringUtils.substringAfter(receivedMessage, "push:").trim();
-            Broadcast broadcast = new Broadcast(new TextMessage(pushMsg));
-            return client.broadcast(broadcast).get();
-        } else if (receivedMessage.startsWith("activate:") && userService.isUserAdmin(event.getSource().getUserId())) {
-            String code = StringUtils.substringAfter(receivedMessage, "activate:").trim();
-            boolean success = userService.activateUser(code);
-            if (success) {
-                msg = new TextMessage("啟用成功: " + code);
-                client.pushMessage(new PushMessage(code, new TextMessage(Common.ALERT + "小幫手啟用成功! 請使用help查看指令集!")));
+        if (receivedMessage.startsWith("push:")) {
+            if (userService.isUserAdmin(event.getSource().getUserId())) {
+                String pushMsg = StringUtils.substringAfter(receivedMessage, "push:").trim();
+                Broadcast broadcast = new Broadcast(new TextMessage(pushMsg));
+                return client.broadcast(broadcast).get();
             } else {
-                msg = new TextMessage("啟用失敗: " + code);
+                msg = new TextMessage("您無此權限！");
+            }
+
+        } else if (receivedMessage.startsWith("activate:") && userService.isUserAdmin(event.getSource().getUserId())) {
+            if (userService.isUserAdmin(event.getSource().getUserId())) {
+                String code = StringUtils.substringAfter(receivedMessage, "activate:").trim();
+                boolean success = userService.activateUser(code);
+                if (success) {
+                    msg = new TextMessage("啟用成功: " + code);
+                    client.pushMessage(new PushMessage(code, new TextMessage(Common.ALERT + "小幫手啟用成功! 請使用help查看指令集!")));
+                } else {
+                    msg = new TextMessage("啟用失敗: " + code);
+                }
+            } else {
+                msg = new TextMessage("您無此權限！");
             }
         } else if (StringUtils.equalsIgnoreCase(receivedMessage, "enable")) {
             msg = new TextMessage(userService.updateUserNotify(event.getSource().getSenderId(), true));
