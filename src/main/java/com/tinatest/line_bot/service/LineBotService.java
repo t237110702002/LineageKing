@@ -326,10 +326,11 @@ public class LineBotService {
 
         Box footer = Box.builder()
                 .layout(FlexLayout.VERTICAL)
-                .contents(Button.builder().height(ButtonHeight.MEDIUM).style(ButtonStyle.PRIMARY).action(action).build(),
-                        Button.builder().height(ButtonHeight.MEDIUM).style(ButtonStyle.PRIMARY).action(action2).build(),
-                        Button.builder().height(ButtonHeight.MEDIUM).style(ButtonStyle.PRIMARY).action(action3).build())
+                .contents(Button.builder().height(ButtonHeight.SMALL).style(ButtonStyle.PRIMARY).action(action).color("#5F7197").build(),
+                        Button.builder().height(ButtonHeight.SMALL).style(ButtonStyle.PRIMARY).action(action2).color("#5F7197").build(),
+                        Button.builder().height(ButtonHeight.SMALL).style(ButtonStyle.PRIMARY).action(action3).color("#5F7197").build())
                 .backgroundColor("#ffffb3")
+                .spacing(FlexMarginSize.SM)
                 .build();
         BubbleSize size;
 
