@@ -110,9 +110,9 @@ public class LineBotService {
                 msg = new TextMessage("您無此權限！");
             }
 
-        } else if (receivedMessage.startsWith("activate:")) {
+        } else if (receivedMessage.startsWith("activate")) {
             if (userService.isUserAdmin(event.getSource().getUserId())) {
-                String code = StringUtils.substringAfter(receivedMessage, "activate:").trim();
+                String code = StringUtils.substringAfter(receivedMessage, "activate").trim();
                 boolean success = userService.activateUser(code);
                 if (success) {
                     msg = new TextMessage("啟用成功: " + code);

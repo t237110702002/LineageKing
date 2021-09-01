@@ -30,8 +30,12 @@ public class Common {
             BLING+ "kr [王名稱] [重生時間]: 直接指定重生時間 \n\n" +
             BLING+ "ky [王名稱] [死亡時間]: 指定前一天死亡時間(跨日時使用) \n\n" +
             BLING+ "clear [王名稱]: 清除死亡時間和重生時間 \n\n" +
-            BLING+ "clear all: 清除所有死亡時間和重生時間 \n\n" +
             ALERT+"時間設定規則24小時制[hhmm]或[hhmmss]"
+            ;
+    public static final String COMMAND_ADMIN = "[管理員特殊指令集] \n" +
+            BLING+ "push: [訊息]: 推播訊息給所有人  \n\n" +
+            BLING+ "activate [代碼]: 幫使用者或群組啟用功能(當小幫手被加入好友或加入群組會提供一組代碼)  \n\n" +
+            BLING+ "clear all: 清除所有死亡時間與重生時間  \n\n"
             ;
 
 }
