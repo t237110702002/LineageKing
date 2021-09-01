@@ -136,6 +136,12 @@ public class LineBotService {
             } else {
                 msg = new TextMessage("您無此權限！");
             }
+        } else if (receivedMessage.startsWith("cool")) {
+            if (StringUtils.equals(event.getSource().getSenderId(), "Ud62a356eedbea86f5231532bae38da4c")) {
+                msg = coolMsg();
+            } else {
+                msg = new TextMessage("您無此權限！");
+            }
         } else {
             if (userService.isUserApproved(event.getSource().getSenderId())) {
                 msg = getMsg(receivedMessage, event.getSource().getUserId(), event.getSource().getSenderId());
@@ -293,6 +299,41 @@ public class LineBotService {
         BubbleSize size;
 
         Bubble bubble = Bubble.builder().direction(direction).hero(hero).body(body).build();
+        return FlexMessage.builder().altText("Welcome Message").contents(bubble).build();
+    }
+
+    public FlexMessage coolMsg() {
+
+        FlexDirection direction = FlexDirection.LTR;
+
+        BubbleStyles styles = BubbleStyles.builder().footer(BlockStyle.builder().backgroundColor("#639594").build()).build();
+
+        Image hero = Image.builder().url(URI.create("https://i.pinimg.com/originals/39/5b/9d/395b9d6aa2f79c77f86bbdc9840e0248.jpg"))
+                .size(ImageSize.FULL_WIDTH).aspectRatio(25, 19).build();
+
+        Box header = Box.builder()
+                .layout(FlexLayout.VERTICAL).build();
+
+        Box body = Box.builder()
+                .layout(FlexLayout.VERTICAL)
+                .contents(Text.builder().text("酷酷的東西 \uD83D\uDC99  \uD83D\uDE0F").weight(TextWeight.BOLD).size("xl").build(),
+                        Text.builder().text("✨ 網拍逛起來 ✨").margin(FlexMarginSize.XL).build())
+                .build();
+
+        URIAction action = new URIAction("Tina's IG", URI.create("https://www.instagram.com/tinayenxx/"), null);
+        URIAction action2 = new URIAction("SWEESA", URI.create("https://www.sweesa.com/Shop/"), null);
+        URIAction action3 = new URIAction("WEAR to EAT", URI.create("https://www.weartoeat.com.tw/"), null);
+
+        Box footer = Box.builder()
+                .layout(FlexLayout.VERTICAL)
+                .contents(Button.builder().height(ButtonHeight.MEDIUM).style(ButtonStyle.PRIMARY).action(action).build(),
+                        Button.builder().height(ButtonHeight.MEDIUM).style(ButtonStyle.PRIMARY).action(action2).build(),
+                        Button.builder().height(ButtonHeight.MEDIUM).style(ButtonStyle.PRIMARY).action(action3).build())
+                .backgroundColor("#ffffb3")
+                .build();
+        BubbleSize size;
+
+        Bubble bubble = Bubble.builder().direction(direction).hero(hero).body(body).footer(footer).build();
         return FlexMessage.builder().altText("Welcome Message").contents(bubble).build();
     }
 
