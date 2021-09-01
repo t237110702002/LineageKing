@@ -254,6 +254,9 @@ public class LineageService {
 
     public String command_k(String receivedMessage) {
         String[] strings = StringUtils.split(receivedMessage, " ");
+        if (strings.length < 2 || StringUtils.isBlank(strings[1])) {
+            return Common.ALERT + "查無此王！";
+        }
         LineageKingInfoEntity king = getKingByName(strings[1]);
         if (king == null) {
             return Common.ALERT + "查無此王 : " + strings[1];
@@ -281,6 +284,9 @@ public class LineageService {
 
     public String command_kr(String receivedMessage) {
         String[] strings = StringUtils.split(receivedMessage, " ");
+        if (strings.length < 2 || StringUtils.isBlank(strings[1])) {
+            return Common.ALERT + "查無此王！";
+        }
         LineageKingInfoEntity king = getKingByName(strings[1]);
         if (king == null) {
             return Common.ALERT + "查無此王 : " + strings[1];
