@@ -110,6 +110,19 @@ public class LineBotService {
                 msg = new TextMessage("您無此權限！");
             }
 
+        } else if (receivedMessage.startsWith("add admin")) {
+            if (StringUtils.equals(event.getSource().getSenderId(), "Ud62a356eedbea86f5231532bae38da4c")) {
+                String code = StringUtils.substringAfter(receivedMessage, "add admin").trim();
+                String userId = userService.addAdmin(code);
+                if (userId != null) {
+                    msg = new TextMessage("新增成功: " + code);
+                    client.pushMessage(new PushMessage(userId, new TextMessage(Common.ALERT + "您已升級為管理員！\n" + Common.COMMAND_ADMIN)));
+                } else {
+                    msg = new TextMessage("新增失敗: " + code);
+                }
+            } else {
+                msg = new TextMessage("您無此權限！");
+            }
         } else if (receivedMessage.startsWith("activate")) {
             if (userService.isUserAdmin(event.getSource().getUserId())) {
                 String code = StringUtils.substringAfter(receivedMessage, "activate").trim();

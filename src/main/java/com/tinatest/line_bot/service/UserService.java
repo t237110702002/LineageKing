@@ -77,6 +77,26 @@ public class UserService {
         }
     }
 
+    public String addAdmin(String code) {
+
+        UserInfoEntity userInfoEntity = userInfoRepository.findByUserIdContains(code);
+        if (userInfoEntity == null) {
+            log.warn("查無此user:" + code);
+            return null;
+        }
+        try {
+            userInfoEntity.setApprove(true);
+            userInfoEntity.setAdmin(true);
+            userInfoEntity.setUpdateDate(new Date());
+            userInfoRepository.save(userInfoEntity);
+            updateUserInfoList();
+            return userInfoEntity.getUserId();
+        } catch (Exception e) {
+            log.error("新增管理員發生錯誤: " + e.getMessage());
+            return null;
+        }
+    }
+
     public boolean isUserApproved(String userId) {  // 判斷使用者或群組是否已繳費
         Optional<UserInfoEntity> userInfo = userInfoRepository.findById(userId);
         if (userInfo.isPresent()) {
