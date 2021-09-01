@@ -42,6 +42,7 @@ public class ScheduledTaskService {
     @PostConstruct
     public void init(){
         log.error(String.format(">>>>>>>>>> 推播功能 : %s <<<<<<<<<<", (BooleanUtils.toBoolean(pushEnable) ? "開啟" : "關閉")));
+        updateKingInfoList();
         checkTask();
     }
 

@@ -54,65 +54,6 @@ public class LineageService {
     @Autowired
     private KingShortNameRepository kingShortNameRepository;
 
-    @PostConstruct
-    public void init() {
-        updateKingInfoList();
-
-//        database.put("1", new KingInfo("1", "佩爾利斯", "蜜蜂蜂窩", 180, true, null, null));
-//        database.put("2", new KingInfo("2","巴實那", "荒原南部", 240, true,null, null));
-//        database.put("3", new KingInfo("3","潘納洛德", "哥肯花園", 300, true,null, null));
-//        database.put("4", new KingInfo("4","采爾圖巴", "采爾圖巴營帳", 360, true,null, null));
-//        database.put("5", new KingInfo("5","坦佛斯特", "太平間", 360, true,null, null));
-//        database.put("6", new KingInfo("6","魔圖拉", "掠奪者野營", 360, true,null, null));
-//        database.put("7", new KingInfo("7","安庫拉", "狄恩牧草地", 360, true,null, null));
-//        database.put("8", new KingInfo("8","布賴卡", "布賴卡巢穴", 360, true,null, null));
-//        database.put("9", new KingInfo("9","巨蟻女王", "螞蟻3樓", 360, true,null, null));
-//        database.put("10", new KingInfo("10","特論巴", "血之沼澤", 420, true,null, null));
-//
-//        database.put("11", new KingInfo("11","雷比魯", "孢子擴散地", 420, true, null, null));
-//        database.put("12", new KingInfo("12","史坦", "巨人的痕跡", 420, false,null, null));
-//        database.put("13", new KingInfo("13","被汙染的克魯瑪", "克塔3樓", 480, false,null, null));
-//        database.put("14", new KingInfo("14","提米特利斯", "芙羅蘭開墾地", 480, false,null, null));
-//        database.put("15", new KingInfo("15","提米妮爾", "提米妮爾巢穴", 480, false,null, null));
-//        database.put("16", new KingInfo("16","塔金", "里多蜥蜴人部落", 480, true,null, null));
-//        database.put("17", new KingInfo("17","克魯瑪", "克魯瑪沼澤地", 480, false,null, null));
-//        database.put("18", new KingInfo("18","卡雷斯", "塔諾峽谷", 540, true,null, null));
-//        database.put("19", new KingInfo("19","貝希莫斯", "龍之谷北部", 540, false,null, null));
-//        database.put("20", new KingInfo("20","塔拉金", "叛亂軍根據地", 600, false,null, null));
-//
-//        database.put("21", new KingInfo("21","核心基座", "克塔7樓", 600, true, null, null));
-//        database.put("22", new KingInfo("22","梅杜莎", "梅杜莎的庭院", 600, false,null, null));
-//        database.put("23", new KingInfo("23","卡坦", "克塔6樓", 600, false,null, null));
-//        database.put("24", new KingInfo("24","沙勒卡", "德魯蜥蜴人棲息地", 600, false,null, null));
-//        database.put("25", new KingInfo("25","凱索思", "絕望廢墟", 600, true,null, null));
-//        database.put("26", new KingInfo("26","風王", "", 720, false,null, null));
-//        database.put("27", new KingInfo("27","賽魯", "帕格立歐祭壇", 720, true,null, null));
-//        database.put("28", new KingInfo("28","黑色蕾爾莉", "死亡迴廊", 720, false,null, null));
-//        database.put("29", new KingInfo("29","薩班", "螞蟻2樓", 720, false,null, null));
-//        database.put("30", new KingInfo("30","瓦柏", "山賊城寨", 720, true,null, null));
-//
-//        database.put("31", new KingInfo("31","猛龍獸", "龍洞6樓", 720, true, null, null));
-//        database.put("32", new KingInfo("32","潘柴特", "狄恩丘陵地", 720, false,null, null));
-//        database.put("33", new KingInfo("33","暗王", "", 720, false,null, null));
-//        database.put("34", new KingInfo("34","寇倫", "象牙塔2樓", 720, false,null, null));
-//        database.put("35", new KingInfo("35","水王", "", 1080, false,null, null));
-//        database.put("36", new KingInfo("36","地王", "", 1080, false,null, null));
-//        database.put("37", new KingInfo("37","奧爾芬", "奧爾芬之巢", 1440, true,null, null));
-
-//        Date now = new Date();
-//        database.values().stream().forEach(kingInfo -> {
-//            LineageKingInfoEntity entity = new LineageKingInfoEntity();
-//            entity.setId(kingInfo.getId());
-//            entity.setKingName(kingInfo.getName());
-//            entity.setLocation(kingInfo.getLocation());
-//            entity.setRandom(kingInfo.isRandom());
-//            entity.setPeriodMin(kingInfo.getPeriod());
-//            entity.setUpdateDate(now);
-//            lineageKingInfoRepository.save(entity);
-//        });
-    }
-
-
     public String createData(String id, String name, String location, String period, String lastAppear, String random) {
         if (StringUtils.isBlank(lastAppear)) {
             System.out.println("lastAppear is empty");
@@ -156,17 +97,6 @@ public class LineageService {
             return "修改一筆: " + entity.getKingName();
         }
     }
-
-    private Date getNextAppear(int period, Date lastAppear) {
-        Calendar c = Calendar.getInstance();
-        c.setTime(lastAppear);
-        c.add(Calendar.MINUTE, period);
-        return c.getTime();
-    }
-
-//    public Map<String, KingInfo> getDatabase() {
-//        return database;
-//    }
 
     public List<KingInfo> getAllKings() {
         List<KingInfo> all = new LinkedList<>();
@@ -214,7 +144,7 @@ public class LineageService {
 
     }
 
-    public FlexMessage getAppearTable(List<FlexComponent> flexComponents) {
+    private FlexMessage getAppearTable(List<FlexComponent> flexComponents) {
 
         FlexDirection direction = FlexDirection.LTR;
         BubbleStyles styles = BubbleStyles.builder().footer(BlockStyle.builder().backgroundColor("#639594").build()).build();
@@ -240,16 +170,6 @@ public class LineageService {
         return FlexMessage.builder().altText("出王重生表").contents(bubble).build();
 
 //        client.pushMessage(new PushMessage("Ud62a356eedbea86f5231532bae38da4c", flexMessage));
-    }
-
-    private Date numStrToDate(String numStr, Date now) {
-        String allTime = (numStr.trim().length() == 4) ? numStr.trim() + "00" : numStr.trim();
-        try {
-            return Common.formatter.parse(String.format("%s %s",Common.dateFormat.format(now), allTime));
-        } catch (ParseException e) {
-            log.warn(e.getMessage());
-        }
-        return null;
     }
 
     public String command_k(String receivedMessage) {
@@ -357,12 +277,6 @@ public class LineageService {
         return getOneKingInfoStr(transform(king));
     }
 
-
-    private List<KingInfo> getSorted(List<KingInfo> kingInfos) {
-         Collections.sort(kingInfos);
-        return kingInfos;
-    }
-
     public String command_clear(String receivedMessage) {
         String[] strings = StringUtils.split(receivedMessage, " ");
         LineageKingInfoEntity king = getKingByName(strings[1].trim());
@@ -380,6 +294,7 @@ public class LineageService {
             all.forEach(k -> {
                 k.setLastAppear(null);
                 k.setNextAppear(null);
+                k.setMissCount(0);
                 k.setUpdateDate(new Date());
             });
             lineageKingInfoRepository.saveAll(all);
@@ -436,6 +351,13 @@ public class LineageService {
         return "";
     }
 
+    private Date getNextAppear(int period, Date lastAppear) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(lastAppear);
+        c.add(Calendar.MINUTE, period);
+        return c.getTime();
+    }
+
     private String getKingsInfoStrForTen(KingInfo kingInfo) {
         String randomStr = kingInfo.isRandom() ? "隨" : "必";
         String nextAppearStr = kingInfo.getNextAppear() == null ? "  -----  " : Common.timeOnlyFormat.format(kingInfo.getNextAppear());
@@ -451,20 +373,6 @@ public class LineageService {
         String missStr = (kingInfo.getMissCount() == null || kingInfo.getMissCount() == 0) ? "" : "(過" + kingInfo.getMissCount() + ")";
         return String.format("%s [%s]-%s(%s) \n死亡時間:%s\n重生時間:%s", Common.DEVIL,
                 kingInfo.getName(), kingInfo.getLocation(), randomStr, lastAppearStr, nextAppearStr);
-    }
-
-    private KingInfo findKingByName(String name) {
-        return transform(getKingByName(name));
-    }
-
-    private LineageKingInfoEntity getKingByName(String name) {
-        List<KingShortNameEntity> byShortName = kingShortNameRepository.findByKingNameOrShortName(name, name);
-        String kingName = CollectionUtils.isEmpty(byShortName) ? name : byShortName.get(0).getKingName();
-        LineageKingInfoEntity byKingName = lineageKingInfoRepository.findByKingName(kingName);
-        if (byKingName != null) {
-            return byKingName;
-        }
-        return null;
     }
 
     public void updateNextAppear(List<String> ids, Date now) {
@@ -494,6 +402,35 @@ public class LineageService {
         return kingInfo;
     }
 
+    private Date numStrToDate(String numStr, Date now) {
+        String allTime = (numStr.trim().length() == 4) ? numStr.trim() + "00" : numStr.trim();
+        try {
+            return Common.formatter.parse(String.format("%s %s",Common.dateFormat.format(now), allTime));
+        } catch (ParseException e) {
+            log.warn(e.getMessage());
+        }
+        return null;
+    }
+
+    private KingInfo findKingByName(String name) {
+        return transform(getKingByName(name));
+    }
+
+    private LineageKingInfoEntity getKingByName(String name) {
+        List<KingShortNameEntity> byShortName = kingShortNameRepository.findByKingNameOrShortName(name, name);
+        String kingName = CollectionUtils.isEmpty(byShortName) ? name : byShortName.get(0).getKingName();
+        LineageKingInfoEntity byKingName = lineageKingInfoRepository.findByKingName(kingName);
+        if (byKingName != null) {
+            return byKingName;
+        }
+        return null;
+    }
+
+    private List<KingInfo> getSorted(List<KingInfo> kingInfos) {
+        Collections.sort(kingInfos);
+        return kingInfos;
+    }
+
     public void updateKingInfoList() {
         kingInfoList = getAllKings();
     }
@@ -506,5 +443,61 @@ public class LineageService {
 //    public void setKingInfoList(List<KingInfo> kingInfoList) {
 //        this.kingInfoList = kingInfoList;
 //    }
+
+    public void localData() {
+
+//        database.put("1", new KingInfo("1", "佩爾利斯", "蜜蜂蜂窩", 180, true, null, null));
+//        database.put("2", new KingInfo("2","巴實那", "荒原南部", 240, true,null, null));
+//        database.put("3", new KingInfo("3","潘納洛德", "哥肯花園", 300, true,null, null));
+//        database.put("4", new KingInfo("4","采爾圖巴", "采爾圖巴營帳", 360, true,null, null));
+//        database.put("5", new KingInfo("5","坦佛斯特", "太平間", 360, true,null, null));
+//        database.put("6", new KingInfo("6","魔圖拉", "掠奪者野營", 360, true,null, null));
+//        database.put("7", new KingInfo("7","安庫拉", "狄恩牧草地", 360, true,null, null));
+//        database.put("8", new KingInfo("8","布賴卡", "布賴卡巢穴", 360, true,null, null));
+//        database.put("9", new KingInfo("9","巨蟻女王", "螞蟻3樓", 360, true,null, null));
+//        database.put("10", new KingInfo("10","特論巴", "血之沼澤", 420, true,null, null));
+//
+//        database.put("11", new KingInfo("11","雷比魯", "孢子擴散地", 420, true, null, null));
+//        database.put("12", new KingInfo("12","史坦", "巨人的痕跡", 420, false,null, null));
+//        database.put("13", new KingInfo("13","被汙染的克魯瑪", "克塔3樓", 480, false,null, null));
+//        database.put("14", new KingInfo("14","提米特利斯", "芙羅蘭開墾地", 480, false,null, null));
+//        database.put("15", new KingInfo("15","提米妮爾", "提米妮爾巢穴", 480, false,null, null));
+//        database.put("16", new KingInfo("16","塔金", "里多蜥蜴人部落", 480, true,null, null));
+//        database.put("17", new KingInfo("17","克魯瑪", "克魯瑪沼澤地", 480, false,null, null));
+//        database.put("18", new KingInfo("18","卡雷斯", "塔諾峽谷", 540, true,null, null));
+//        database.put("19", new KingInfo("19","貝希莫斯", "龍之谷北部", 540, false,null, null));
+//        database.put("20", new KingInfo("20","塔拉金", "叛亂軍根據地", 600, false,null, null));
+//
+//        database.put("21", new KingInfo("21","核心基座", "克塔7樓", 600, true, null, null));
+//        database.put("22", new KingInfo("22","梅杜莎", "梅杜莎的庭院", 600, false,null, null));
+//        database.put("23", new KingInfo("23","卡坦", "克塔6樓", 600, false,null, null));
+//        database.put("24", new KingInfo("24","沙勒卡", "德魯蜥蜴人棲息地", 600, false,null, null));
+//        database.put("25", new KingInfo("25","凱索思", "絕望廢墟", 600, true,null, null));
+//        database.put("26", new KingInfo("26","風王", "", 720, false,null, null));
+//        database.put("27", new KingInfo("27","賽魯", "帕格立歐祭壇", 720, true,null, null));
+//        database.put("28", new KingInfo("28","黑色蕾爾莉", "死亡迴廊", 720, false,null, null));
+//        database.put("29", new KingInfo("29","薩班", "螞蟻2樓", 720, false,null, null));
+//        database.put("30", new KingInfo("30","瓦柏", "山賊城寨", 720, true,null, null));
+//
+//        database.put("31", new KingInfo("31","猛龍獸", "龍洞6樓", 720, true, null, null));
+//        database.put("32", new KingInfo("32","潘柴特", "狄恩丘陵地", 720, false,null, null));
+//        database.put("33", new KingInfo("33","暗王", "", 720, false,null, null));
+//        database.put("34", new KingInfo("34","寇倫", "象牙塔2樓", 720, false,null, null));
+//        database.put("35", new KingInfo("35","水王", "", 1080, false,null, null));
+//        database.put("36", new KingInfo("36","地王", "", 1080, false,null, null));
+//        database.put("37", new KingInfo("37","奧爾芬", "奧爾芬之巢", 1440, true,null, null));
+
+//        Date now = new Date();
+//        database.values().stream().forEach(kingInfo -> {
+//            LineageKingInfoEntity entity = new LineageKingInfoEntity();
+//            entity.setId(kingInfo.getId());
+//            entity.setKingName(kingInfo.getName());
+//            entity.setLocation(kingInfo.getLocation());
+//            entity.setRandom(kingInfo.isRandom());
+//            entity.setPeriodMin(kingInfo.getPeriod());
+//            entity.setUpdateDate(now);
+//            lineageKingInfoRepository.save(entity);
+//        });
+    }
 
 }

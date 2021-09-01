@@ -114,17 +114,17 @@ public class LineBotService {
             } else {
                 msg = new TextMessage("您無此權限！");
             }
-        } else if (StringUtils.equalsIgnoreCase(receivedMessage, "enable")) {
-            msg = new TextMessage(userService.updateUserNotify(event.getSource().getSenderId(), true));
-        } else if (StringUtils.equalsIgnoreCase(receivedMessage, "disable")) {
-            msg = new TextMessage(userService.updateUserNotify(event.getSource().getSenderId(), false));
         } else {
-            msg = getMsg(receivedMessage, event.getSource().getUserId());
+            if (userService.isUserApproved(event.getSource().getSenderId())) {
+                msg = getMsg(receivedMessage, event.getSource().getUserId(), event.getSource().getSenderId());
+            } else {
+                msg = new TextMessage(Common.ALERT + "抱歉！小幫手功能尚未啟用！");
+            }
         }
         return client.replyMessage(new ReplyMessage(replyToken, msg)).get();
     }
 
-    public Message getMsg(String receivedMessage, String userId) {
+    public Message getMsg(String receivedMessage, String userId, String senderId) {
         String keyword = String.format(receivedMessage);
 
         Message resultMsg = new TextMessage("");
@@ -153,6 +153,12 @@ public class LineBotService {
             case "hello":
             case "hey":
                 messages = Common.HI + "Hi Hi Hi 我是Tina小幫手";
+                break;
+            case "enable":
+                messages = userService.updateUserNotify(senderId, true);
+                break;
+            case "disable":
+                messages = userService.updateUserNotify(senderId, false);
                 break;
             case "clear":
                 messages = lineageService.command_clear(receivedMessage);

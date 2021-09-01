@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -78,7 +77,7 @@ public class UserService {
         }
     }
 
-    public boolean isUserApproved(String userId) {
+    public boolean isUserApproved(String userId) {  // 判斷使用者或群組是否已繳費
         Optional<UserInfoEntity> userInfo = userInfoRepository.findById(userId);
         if (userInfo.isPresent()) {
             return userInfo.get().getApprove();
