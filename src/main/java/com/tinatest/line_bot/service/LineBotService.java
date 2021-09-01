@@ -29,10 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import java.net.URI;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @Service
@@ -90,10 +87,10 @@ public class LineBotService {
 
     public BotApiResponse reply(MessageEvent<TextMessageContent> event) throws  ExecutionException, InterruptedException {
         String receivedMessage = event.getMessage().getText();
-        String replyToken = event.getReplyToken();
-        Message msg;
         receivedMessage = receivedMessage.toLowerCase();
         receivedMessage = receivedMessage.trim();
+        String replyToken = event.getReplyToken();
+        Message msg;
 
         if (receivedMessage.startsWith("push:") && userService.isUserAdmin(event.getSource().getUserId())) {
             String pushMsg = StringUtils.substringAfter(receivedMessage, "push:").trim();
@@ -113,11 +110,85 @@ public class LineBotService {
         } else if (StringUtils.equalsIgnoreCase(receivedMessage, "disable")) {
             msg = new TextMessage(userService.updateUserNotify(event.getSource().getSenderId(), false));
         } else {
-            msg = lineageService.getMsg(receivedMessage);
+            msg = getMsg(receivedMessage, event.getSource().getUserId());
         }
-//        return client.replyMessage(new ReplyMessage(replyToken, msg)).get();
         return client.replyMessage(new ReplyMessage(replyToken, msg)).get();
     }
+
+    public Message getMsg(String receivedMessage, String userId) {
+        String keyword = String.format(receivedMessage);
+
+        Message resultMsg = new TextMessage("");
+        String messages = "";
+
+        if (receivedMessage.startsWith("k ")) {
+            keyword = "k";
+        } else if (receivedMessage.startsWith("clear all")) {
+            keyword = "clear all";
+        } else if (receivedMessage.startsWith("clear ")) {
+            keyword = "clear";
+        } else if (receivedMessage.startsWith("add tag")) {
+            keyword = "add tag";
+        } else if (receivedMessage.startsWith("kr ")) {
+            keyword = "kr";
+        } else if (receivedMessage.startsWith("tag ")) {
+            keyword = "tag";
+        } else if (receivedMessage.startsWith("ky ")) {
+            keyword = "ky";
+        }
+
+        switch (keyword) {
+            case "hi":
+            case "嗨":
+            case "你好":
+            case "hello":
+            case "hey":
+                messages = Common.HI + "Hi Hi Hi 我是Tina小幫手";
+                break;
+            case "clear":
+                messages = lineageService.command_clear(receivedMessage);
+                break;
+            case "clear all":
+                if (userService.isUserAdmin(userId)) {
+                    messages = lineageService.command_clearAll();
+                } else {
+                    messages = Common.ALERT + "您無此權限！";
+                }
+                break;
+            case "add tag":
+                messages = lineageService.command_addTag(receivedMessage);
+                break;
+            case "tag":
+                messages = lineageService.command_tag(receivedMessage);
+                break;
+            case "k":
+                messages = lineageService.command_k(receivedMessage);
+                break;
+            case "kr":
+                messages = lineageService.command_kr(receivedMessage);
+                break;
+            case "ky":
+                messages = lineageService.command_ky(receivedMessage);
+                break;
+            case "kb all":
+                messages = lineageService.command_kbAll();
+                break;
+            case "kb":
+                resultMsg = lineageService.command_kb();
+                break;
+            case "help":
+                messages = Common.COMMAND;
+                break;
+            default:
+                messages = lineageService.command_default(receivedMessage);
+                break;
+        }
+        if (StringUtils.isNotBlank(messages)) {
+            return new TextMessage(messages);
+        }
+        return resultMsg;
+    }
+
 
     public void handleSticker(String replyToken, StickerMessageContent content) {
         client.replyMessage(new ReplyMessage(replyToken, new StickerMessage(

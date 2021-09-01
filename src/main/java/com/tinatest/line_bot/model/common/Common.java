@@ -25,11 +25,12 @@ public class Common {
             BLING+ "kb all: 列出所王重生表  \n\n" +
             BLING+ "k [王名稱]: 設定死亡時間(當下) \n\n" +
             BLING+ "k [王名稱] [死亡時間]: 設定指定死亡時間\n\n" +
-            BLING+ "clear [王名稱]: 清除死亡時間和重生時間 \n\n" +
             BLING+ "add tag [王名稱] [簡稱]: 新增王的簡稱 \n\n" +
             BLING+ "tag [王名稱]: 列出王的所有簡稱 \n\n" +
             BLING+ "kr [王名稱] [重生時間]: 直接指定重生時間 \n\n" +
             BLING+ "ky [王名稱] [死亡時間]: 指定前一天死亡時間(跨日時使用) \n\n" +
+            BLING+ "clear [王名稱]: 清除死亡時間和重生時間 \n\n" +
+            BLING+ "clear all: 清除所有死亡時間和重生時間 \n\n" +
             ALERT+"時間設定規則24小時制[hhmm]或[hhmmss]"
             ;
 

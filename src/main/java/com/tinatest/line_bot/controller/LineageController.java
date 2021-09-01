@@ -5,8 +5,8 @@ import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.PushMessage;
 import com.linecorp.bot.model.message.Message;
 import com.tinatest.line_bot.dto.KingInfo;
-import com.tinatest.line_bot.dto.KingInfoRequest;
 import com.tinatest.line_bot.dto.UpdateKingRequest;
+import com.tinatest.line_bot.service.LineBotService;
 import com.tinatest.line_bot.service.LineageService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -38,6 +38,9 @@ public class LineageController {
 
     @Autowired
     private LineMessagingClient client;
+
+    @Autowired
+    private LineBotService lineBotService;
 
     @GetMapping(value = "/page")
     public String mainPage(HttpServletRequest request, HttpServletResponse response) {
@@ -93,7 +96,7 @@ public class LineageController {
         if (!token.equals(adminToken)) {
             return "AUTH FAIL";
         }
-        Message msg = lineageService.getMsg(command);
+        Message msg = lineBotService.getMsg(command, "Ud62a356eedbea86f5231532bae38da4c");
         client.pushMessage(new PushMessage("Ud62a356eedbea86f5231532bae38da4c", msg));
         return msg.toString();
     }

@@ -111,13 +111,16 @@ public class UserService {
         return userInfoList;
     }
 
-    public boolean isUserAdmin(String userId) {
-        List<String> adminList = Arrays.asList("Ud62a356eedbea86f5231532bae38da4c");
-        return adminList.contains(userId);
-    }
-
-//
-//    public void setUserInfoList(List<String> userInfoList) {
-//        this.userInfoList = userInfoList;
+//    public boolean isUserAdmin(String userId) {
+//        List<String> adminList = Arrays.asList("Ud62a356eedbea86f5231532bae38da4c");
+//        return adminList.contains(userId);
 //    }
+
+    public boolean isUserAdmin(String userId) {
+        UserInfoEntity userInfoEntity = userInfoRepository.findByAdminAndUserId(true, userId);
+        if (userInfoEntity != null) {
+            return true;
+        }
+        return false;
+    }
 }

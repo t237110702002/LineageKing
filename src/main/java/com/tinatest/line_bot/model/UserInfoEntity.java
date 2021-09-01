@@ -20,8 +20,17 @@ public class UserInfoEntity {
     @Column(name = "user_name")
     private String userName;
 
-    @Column(name = "approve")
+    @Column(name = "approve")  //是否可以啟用功能
     private Boolean approve;
+
+    @Column(name = "admin")  //是否為管理員
+    private String admin;
+
+    @Column(name = "user_line_id") //使用者LINE的id
+    private String userLineId;
+
+    @Column(name = "user_game_id") //使用者遊戲中的id
+    private String userGameId;
 
     @Column(name = "update_date")
     private Date updateDate;
@@ -56,6 +65,30 @@ public class UserInfoEntity {
 
     public void setApprove(Boolean approve) {
         this.approve = approve;
+    }
+
+    public String getAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(String admin) {
+        this.admin = admin;
+    }
+
+    public String getUserLineId() {
+        return userLineId;
+    }
+
+    public void setUserLineId(String userLineId) {
+        this.userLineId = userLineId;
+    }
+
+    public String getUserGameId() {
+        return userGameId;
+    }
+
+    public void setUserGameId(String userGameId) {
+        this.userGameId = userGameId;
     }
 
     public Date getUpdateDate() {
