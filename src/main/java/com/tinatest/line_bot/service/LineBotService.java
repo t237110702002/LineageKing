@@ -5,6 +5,7 @@ import com.linecorp.bot.model.Broadcast;
 import com.linecorp.bot.model.PushMessage;
 import com.linecorp.bot.model.ReplyMessage;
 import com.linecorp.bot.model.action.Action;
+import com.linecorp.bot.model.action.URIAction;
 import com.linecorp.bot.model.event.FollowEvent;
 import com.linecorp.bot.model.event.JoinEvent;
 import com.linecorp.bot.model.event.MessageEvent;
@@ -15,13 +16,20 @@ import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.StickerMessage;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.model.message.flex.component.Box;
+import com.linecorp.bot.model.message.flex.component.Button;
+import com.linecorp.bot.model.message.flex.component.Button.ButtonHeight;
+import com.linecorp.bot.model.message.flex.component.Button.ButtonStyle;
+import com.linecorp.bot.model.message.flex.component.Image;
+import com.linecorp.bot.model.message.flex.component.Image.ImageSize;
 import com.linecorp.bot.model.message.flex.component.Text;
+import com.linecorp.bot.model.message.flex.component.Text.TextWeight;
 import com.linecorp.bot.model.message.flex.container.Bubble;
 import com.linecorp.bot.model.message.flex.container.Bubble.BubbleSize;
 import com.linecorp.bot.model.message.flex.container.BubbleStyles;
 import com.linecorp.bot.model.message.flex.container.BubbleStyles.BlockStyle;
 import com.linecorp.bot.model.message.flex.unit.FlexDirection;
 import com.linecorp.bot.model.message.flex.unit.FlexLayout;
+import com.linecorp.bot.model.message.flex.unit.FlexMarginSize;
 import com.linecorp.bot.model.response.BotApiResponse;
 import com.tinatest.line_bot.model.common.Common;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -152,7 +161,8 @@ public class LineBotService {
             case "你好":
             case "hello":
             case "hey":
-                messages = Common.HI + "Hi Hi Hi 我是Tina小幫手";
+//                messages = Common.HI + "Hi Hi Hi 我是Tina小幫手";
+                resultMsg = helloMsg();
                 break;
             case "enable":
                 messages = userService.updateUserNotify(senderId, true);
@@ -237,9 +247,40 @@ public class LineBotService {
 
         Action action;
 
-        Bubble bubble = Bubble.builder().direction(direction).header(header).body(body).styles(styles).build();
+        Bubble bubble = Bubble.builder().direction(direction).body(body).styles(styles).build();
         FlexMessage flexMessage = FlexMessage.builder().altText("test").contents(bubble).build();
         client.pushMessage(new PushMessage("Ud62a356eedbea86f5231532bae38da4c", flexMessage));
+    }
+
+    public FlexMessage helloMsg() {
+
+        FlexDirection direction = FlexDirection.LTR;
+
+        BubbleStyles styles = BubbleStyles.builder().footer(BlockStyle.builder().backgroundColor("#639594").build()).build();
+
+        Image hero = Image.builder().url(URI.create("https://i.pinimg.com/originals/39/5b/9d/395b9d6aa2f79c77f86bbdc9840e0248.jpg"))
+                .size(ImageSize.FULL_WIDTH).aspectRatio(25, 19).build();
+
+        Box header = Box.builder()
+                .layout(FlexLayout.VERTICAL).build();
+
+        Box body = Box.builder()
+                .layout(FlexLayout.VERTICAL)
+                .contents(Text.builder().text("Hi! 我是Tina的小幫手 \uD83D\uDC99  ").weight(TextWeight.BOLD).size("xl").build(),
+                        Text.builder().text("找我主人請點這邊↓").margin(FlexMarginSize.XL).build())
+                .build();
+
+        URIAction action = new URIAction("Tina's IG", URI.create("https://www.instagram.com/tinayenxx/"), null);
+
+        Box footer = Box.builder()
+                .layout(FlexLayout.VERTICAL)
+                .content(Button.builder().height(ButtonHeight.MEDIUM).style(ButtonStyle.LINK).action(action).build())
+                .backgroundColor("#ffffb3")
+                .build();
+        BubbleSize size;
+
+        Bubble bubble = Bubble.builder().direction(direction).hero(hero).body(body).footer(footer).build();
+        return FlexMessage.builder().altText("Welcome Message").contents(bubble).build();
     }
 
     public FlexMessage pushPicMsg(String kingName, String lastAppear, String nextAppear) {
