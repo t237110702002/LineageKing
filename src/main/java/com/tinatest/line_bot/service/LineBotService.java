@@ -266,8 +266,8 @@ public class LineBotService {
 
         Box body = Box.builder()
                 .layout(FlexLayout.VERTICAL)
-                .contents(Text.builder().text("Hi! 我是Tina的小幫手 \uD83D\uDC99  ").weight(TextWeight.BOLD).size("xl").build(),
-                        Text.builder().text("找我主人請點這邊↓").margin(FlexMarginSize.XL).build())
+                .contents(Text.builder().text("Hi！ 我是打王小幫手 \uD83D\uDC99  ").weight(TextWeight.BOLD).size("xl").build(),
+                        Text.builder().text("讓你不會錯過打王時間喔~").margin(FlexMarginSize.XL).build())
                 .build();
 
         URIAction action = new URIAction("Tina's IG", URI.create("https://www.instagram.com/tinayenxx/"), null);
@@ -279,7 +279,7 @@ public class LineBotService {
                 .build();
         BubbleSize size;
 
-        Bubble bubble = Bubble.builder().direction(direction).hero(hero).body(body).footer(footer).build();
+        Bubble bubble = Bubble.builder().direction(direction).hero(hero).body(body).build();
         return FlexMessage.builder().altText("Welcome Message").contents(bubble).build();
     }
 
