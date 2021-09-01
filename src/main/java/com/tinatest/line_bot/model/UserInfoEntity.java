@@ -24,7 +24,7 @@ public class UserInfoEntity {
     private Boolean approve;
 
     @Column(name = "admin")  //是否為管理員
-    private String admin;
+    private Boolean admin;
 
     @Column(name = "user_line_id") //使用者LINE的id
     private String userLineId;
@@ -67,11 +67,11 @@ public class UserInfoEntity {
         this.approve = approve;
     }
 
-    public String getAdmin() {
+    public Boolean getAdmin() {
         return admin;
     }
 
-    public void setAdmin(String admin) {
+    public void setAdmin(Boolean admin) {
         this.admin = admin;
     }
 
