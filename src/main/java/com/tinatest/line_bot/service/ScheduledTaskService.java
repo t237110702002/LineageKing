@@ -57,7 +57,7 @@ public class ScheduledTaskService {
 
     @Scheduled(cron=  "0 */10 * ? * *")
     public void test() {
-        lineNotifyServic.sendMessages(userService.getUserInfoList(), "TEST 每10分鐘一次的推播~", true);
+        lineNotifyServic.sendMessages(userService.getUserNotifyList(), "TEST 每10分鐘一次的推播~", true);
     }
 
     @Scheduled(cron=  "0 */3 * ? * *")
