@@ -136,7 +136,7 @@ public class UserService {
 
     public List<String> getUserNotifyList() {
         List<UserInfoEntity> userInfoEntities = userInfoRepository.findByNotifyAndApprove(true, true);
-        return userInfoEntities.stream().map(UserInfoEntity::getAccessToken).collect(Collectors.toList());
+        return userInfoEntities.stream().map(UserInfoEntity::getAccessToken).filter(a-> a != null).collect(Collectors.toList());
     }
 
 
