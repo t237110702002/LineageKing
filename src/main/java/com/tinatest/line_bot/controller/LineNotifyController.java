@@ -21,8 +21,12 @@ public class LineNotifyController {
     public String notifyCallback(HttpServletRequest req, @RequestParam String code, @RequestParam String state) {
 
         assert(StringUtils.equals(req.getHeader("referer"), "https://notify-bot.line.me/"));
-        lineNotifyService.callBack(code, state);
-        return  "恭喜完成 LINE Notify 連動！請關閉此視窗。";
+        boolean succ = lineNotifyService.callBack(code, state);
+
+        if (succ)
+            return  "恭喜完成 LINE Notify 連動！請關閉此視窗。";
+        else
+            return  "LINE Notify 連動失敗！";
     }
 
     @GetMapping(value = "/notify/auth")

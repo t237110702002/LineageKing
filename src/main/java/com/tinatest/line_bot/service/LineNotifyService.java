@@ -2,6 +2,8 @@ package com.tinatest.line_bot.service;
 
 import com.google.gson.Gson;
 import com.tinatest.line_bot.service.lineNotify.LineNotifyCallbackResp;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class LineNotifyService {
 
 	private static final String strEndpoint = "https://notify-api.line.me/api/notify";
@@ -130,12 +133,20 @@ public class LineNotifyService {
 	}
 
 	public boolean callBack(String code, String userId) {
+		log.warn(".....................userId:" + userId);
 		try {
 			String resp = getToken(code);
 			LineNotifyCallbackResp lineNotifyCallbackResp = new Gson().fromJson(resp, LineNotifyCallbackResp.class);
+			log.warn(".....................token:" + lineNotifyCallbackResp.getAccess_token());
+			log.warn(".....................resp:" + resp);
+
+			if (StringUtils.isNotBlank(lineNotifyCallbackResp.getAccess_token())) {
+				return false;
+			}
 			userService.updateUserToken(userId, lineNotifyCallbackResp.getAccess_token());
 			return true;
 		} catch (Exception e) {
+			log.error(e.getMessage());
 			return false;
 		}
 	}
