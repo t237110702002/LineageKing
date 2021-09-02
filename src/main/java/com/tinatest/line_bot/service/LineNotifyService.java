@@ -106,8 +106,8 @@ public class LineNotifyService {
 	public String generateAuthLink(String userId) {
 		try {
 			String strUrl = "https://notify-bot.line.me/oauth/authorize";
-			String data = "response_type=code" + "&state="+userId + "&scope=notify" + "&client_id=" + clientId + "&redirect_uri" + redirectUri;
-			return strUrl + "?" + URLEncoder.encode(data, "UTF-8");
+			String data = "response_type=code" + "&state="+userId + "&scope=notify" + "&client_id=" + clientId + "&redirect_uri=" + redirectUri;
+			return strUrl + "?" + data;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
