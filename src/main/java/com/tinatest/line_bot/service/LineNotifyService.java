@@ -104,42 +104,14 @@ public class LineNotifyService {
 	}
 
 	public String generateAuthLink(String userId) {
-		String result = null;
-
 		try {
 			String strUrl = "https://notify-bot.line.me/oauth/authorize";
-			URL url = new URL(strUrl);
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			connection.setRequestMethod("GET");
-			connection.addRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-			connection.setDoOutput(true);
-
-			List<NameValuePair> params = new ArrayList<>();
-			params.add(new BasicNameValuePair("response_type", "code"));
-			params.add(new BasicNameValuePair("state", userId));
-			params.add(new BasicNameValuePair("scope", "notify"));
-			params.add(new BasicNameValuePair("client_id", clientId));
-			params.add(new BasicNameValuePair("redirect_uri", redirectUri));
-
-			OutputStream os = connection.getOutputStream();
-			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-			writer.write(getQuery(params));
-			writer.flush();
-			writer.close();
-			os.close();
-			connection.connect();
-
-			int statusCode = connection.getResponseCode();
-			if (statusCode == 200) {
-				result = connection.getResponseMessage();
-			} else {
-				throw new Exception("Error:(StatusCode)" + statusCode + ", " + connection.getResponseMessage());
-			}
-			connection.disconnect();
+			String data = "response_type=code" + "&state="+userId + "&scope=notify" + "&client_id=" + clientId + "&redirect_uri" + redirectUri;
+			return strUrl + "?" + URLEncoder.encode(data, "UTF-8");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return result;
+		return null;
 	}
 
 	private String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException {

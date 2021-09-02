@@ -77,7 +77,7 @@ public class MessageHandler {
         String replyToken = event.getReplyToken();
         boolean success = lineBotService.joinEvent(event);
         if (success) {
-            String authLink = lineNotifyService.generateAuthLink(event.getSource().getSenderId());
+            String authLink = lineNotifyService.generateAuthLink(event.getSource().getUserId());
             String code = StringUtils.substring(event.getSource().getUserId(), 1, 6);
             lineBotService.replyText(replyToken, String.format("Hi~ 我是天堂打王小幫手! 請先點擊下方連結完成連動並繳費，完成後告知管理員啟用通知功能，謝謝! %s\n請告知管理員您的代碼 : %s \n%s",
                     Common.SMILE, code, authLink));
