@@ -97,7 +97,7 @@ public class LineageController {
             return "AUTH FAIL";
         }
         Message msg = lineBotService.getMsg(command, "Ud62a356eedbea86f5231532bae38da4c", "Ud62a356eedbea86f5231532bae38da4c");
-        client.pushMessage(new PushMessage("Ud62a356eedbea86f5231532bae38da4c", msg));
+//        client.pushMessage(new PushMessage("Ud62a356eedbea86f5231532bae38da4c", msg));
         return msg.toString();
     }
 }

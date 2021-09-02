@@ -77,6 +77,25 @@ public class UserService {
         }
     }
 
+    public boolean updateUserToken(String code, String accessToken) {
+
+        UserInfoEntity userInfoEntity = userInfoRepository.findByUserIdContains(code);
+        if (userInfoEntity == null) {
+            log.warn("查無此user:" + code);
+            return false;
+        }
+        try {
+            userInfoEntity.setAccessToken(accessToken);
+            userInfoEntity.setUpdateDate(new Date());
+            userInfoRepository.save(userInfoEntity);
+            updateUserInfoList();
+            return true;
+        } catch (Exception e) {
+            log.error("發生錯誤: " + e.getMessage());
+            return false;
+        }
+    }
+
     public String addAdmin(String code) {
 
         UserInfoEntity userInfoEntity = userInfoRepository.findByUserIdContains(code);
@@ -117,7 +136,7 @@ public class UserService {
 
     public List<String> getUserNotifyList() {
         List<UserInfoEntity> userInfoEntities = userInfoRepository.findByNotifyAndApprove(true, true);
-        return userInfoEntities.stream().map(UserInfoEntity::getUserId).collect(Collectors.toList());
+        return userInfoEntities.stream().map(UserInfoEntity::getAccessToken).collect(Collectors.toList());
     }
 
 

@@ -32,6 +32,9 @@ public class UserInfoEntity {
     @Column(name = "user_game_id") //使用者遊戲中的id
     private String userGameId;
 
+    @Column(name = "access_token") //LINE Notify access_token
+    private String accessToken;
+
     @Column(name = "update_date")
     private Date updateDate;
 
@@ -89,6 +92,14 @@ public class UserInfoEntity {
 
     public void setUserGameId(String userGameId) {
         this.userGameId = userGameId;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 
     public Date getUpdateDate() {

@@ -15,6 +15,7 @@ import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
 import com.tinatest.line_bot.model.common.Common;
 import com.tinatest.line_bot.service.LineBotService;
+import com.tinatest.line_bot.service.LineNotifyService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -24,9 +25,12 @@ public class MessageHandler {
 
     private final LineBotService lineBotService;
 
-    public MessageHandler(LineBotService lineBotService) {
+    private final LineNotifyService lineNotifyService;
+
+    public MessageHandler(LineBotService lineBotService, LineNotifyService lineNotifyService) {
         super();
         this.lineBotService = lineBotService;
+        this.lineNotifyService = lineNotifyService;
     }
 
     @EventMapping
@@ -61,8 +65,10 @@ public class MessageHandler {
         String replyToken = event.getReplyToken();
         boolean success = lineBotService.followEvent(event);
         if (success) {
+            String authLink = lineNotifyService.generateAuthLink(event.getSource().getUserId());
             String code = StringUtils.substring(event.getSource().getUserId(), 1, 6);
-            lineBotService.replyText(replyToken, String.format("Hi~ 我是Tina小幫手! 請先繳費並洽管理員啟用通知功能，謝謝! %s\n請告知管理員您的代碼 : %s", Common.SMILE, code));
+            lineBotService.replyText(replyToken, String.format("Hi~ 我是天堂打王小幫手! 請先點擊下方連結完成連動並繳費，完成後告知管理員啟用通知功能，謝謝! %s\n請告知管理員您的代碼 : %s \n%s",
+                    Common.SMILE, code, authLink));
         }
     }
 
@@ -71,8 +77,10 @@ public class MessageHandler {
         String replyToken = event.getReplyToken();
         boolean success = lineBotService.joinEvent(event);
         if (success) {
+            String authLink = lineNotifyService.generateAuthLink(event.getSource().getSenderId());
             String code = StringUtils.substring(event.getSource().getUserId(), 1, 6);
-            lineBotService.replyText(replyToken, String.format("Hi~ 我是Tina小幫手! 請先繳費並洽管理員啟用通知功能，謝謝! %s\n請告知管理員您的代碼 : %s", Common.SMILE, code));
+            lineBotService.replyText(replyToken, String.format("Hi~ 我是天堂打王小幫手! 請先點擊下方連結完成連動並繳費，完成後告知管理員啟用通知功能，謝謝! %s\n請告知管理員您的代碼 : %s \n%s",
+                    Common.SMILE, code, authLink));
         }
 
     }

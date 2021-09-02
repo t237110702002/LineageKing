@@ -116,7 +116,7 @@ public class LineBotService {
                 String userId = userService.addAdmin(code);
                 if (userId != null) {
                     msg = new TextMessage("新增成功: " + code);
-                    client.pushMessage(new PushMessage(userId, new TextMessage(Common.ALERT + "您已升級為管理員！\n" + Common.COMMAND_ADMIN)));
+//                    client.pushMessage(new PushMessage(userId, new TextMessage(Common.ALERT + "您已升級為管理員！\n" + Common.COMMAND_ADMIN)));
                 } else {
                     msg = new TextMessage("新增失敗: " + code);
                 }
@@ -129,7 +129,7 @@ public class LineBotService {
                 boolean success = userService.activateUser(code);
                 if (success) {
                     msg = new TextMessage("啟用成功: " + code);
-                    client.pushMessage(new PushMessage(code, new TextMessage(Common.ALERT + "小幫手啟用成功! 請使用help查看指令集!")));
+//                    client.pushMessage(new PushMessage(code, new TextMessage(Common.ALERT + "小幫手啟用成功! 請使用help查看指令集!")));
                 } else {
                     msg = new TextMessage("啟用失敗: " + code);
                 }

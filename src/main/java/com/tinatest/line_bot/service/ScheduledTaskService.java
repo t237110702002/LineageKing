@@ -36,6 +36,9 @@ public class ScheduledTaskService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private LineNotifyService lineNotifyServic;
+
     @Value("${line.bot.push.enable:false}")
     private String pushEnable;
 
@@ -50,6 +53,11 @@ public class ScheduledTaskService {
     public void updateKingInfoList() {
         log.warn("================> Query DB to update KingInfoList");
         lineageService.updateKingInfoList();
+    }
+
+    @Scheduled(cron=  "0 */10 * ? * *")
+    public void test() {
+        lineNotifyServic.sendMessages(userService.getUserInfoList(), "TEST 每10分鐘一次的推播~", true);
     }
 
     @Scheduled(cron=  "0 */3 * ? * *")
@@ -81,7 +89,8 @@ public class ScheduledTaskService {
         }
         if (kingWillAppear && BooleanUtils.toBoolean(pushEnable)) {
             message = new TextMessage(FIRE + "出王通知" + msg);
-            lineBotService.pushMsg(userService.getUserInfoList(), message);
+//            lineBotService.pushMsg(userService.getUserInfoList(), message);
+            lineNotifyServic.sendMessages(userService.getUserInfoList(), FIRE + "出王通知" + msg, true);
         }
     }
 
