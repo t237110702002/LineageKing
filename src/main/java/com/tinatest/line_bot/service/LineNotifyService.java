@@ -140,7 +140,7 @@ public class LineNotifyService {
 			log.warn(".....................token:" + lineNotifyCallbackResp.getAccess_token());
 			log.warn(".....................resp:" + resp);
 
-			if (StringUtils.isNotBlank(lineNotifyCallbackResp.getAccess_token())) {
+			if (StringUtils.isBlank(lineNotifyCallbackResp.getAccess_token())) {
 				return false;
 			}
 			userService.updateUserToken(userId, lineNotifyCallbackResp.getAccess_token());

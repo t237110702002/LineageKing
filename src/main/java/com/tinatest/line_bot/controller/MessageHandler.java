@@ -66,7 +66,7 @@ public class MessageHandler {
         boolean success = lineBotService.followEvent(event);
         if (success) {
             String authLink = lineNotifyService.generateAuthLink(event.getSource().getUserId());
-            String code = StringUtils.substring(event.getSource().getUserId(), 1, 6);
+            String code = StringUtils.substring(event.getSource().getUserId(), 1, 7);
             lineBotService.replyText(replyToken, String.format("Hi~ 我是天堂打王小幫手! 請先點擊下方連結完成連動並繳費，完成後告知管理員啟用通知功能，謝謝! %s\n請告知管理員您的代碼 : %s \n%s",
                     Common.SMILE, code, authLink));
         }
@@ -78,11 +78,10 @@ public class MessageHandler {
         boolean success = lineBotService.joinEvent(event);
         if (success) {
             String authLink = lineNotifyService.generateAuthLink(event.getSource().getUserId());
-            String code = StringUtils.substring(event.getSource().getUserId(), 1, 6);
-            lineBotService.replyText(replyToken, String.format("userId:" + event.getSource().getUserId()));
-            lineBotService.replyText(replyToken, String.format("senderId:" + event.getSource().getSenderId()));
-            lineBotService.replyText(replyToken, String.format("Hi~ 我是天堂打王小幫手! 請先點擊下方連結完成連動並繳費，完成後告知管理員啟用通知功能，謝謝! %s\n" +
-                            "請告知管理員您的代碼 : %s\n%s", Common.SMILE, code, authLink));
+            String code = StringUtils.substring(event.getSource().getSenderId(), 1, 7);
+            log.warn("senderId:" + event.getSource().getSenderId());
+            lineBotService.replyText(replyToken, String.format("Hi 我是天堂打王小幫手！請先點擊下方連結完成連動並繳費，完成後告知管理員代碼(%s)以啟用通知功能！%s\n %s ",
+                    code, Common.SMILE, code, authLink));
         }
 
     }
