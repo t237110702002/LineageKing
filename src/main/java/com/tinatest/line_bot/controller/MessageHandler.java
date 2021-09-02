@@ -81,7 +81,7 @@ public class MessageHandler {
             String code = StringUtils.substring(event.getSource().getSenderId(), 1, 7);
             log.warn("senderId:" + event.getSource().getSenderId());
             lineBotService.replyText(replyToken, String.format("Hi 我是天堂打王小幫手！請先點擊下方連結完成連動並繳費，完成後告知管理員代碼(%s)以啟用通知功能！%s\n %s ",
-                    code, Common.SMILE, code, authLink));
+                    code, Common.SMILE, authLink));
         }
 
     }
