@@ -59,7 +59,7 @@ public class UserService {
 
     public boolean activateUser(String code) {
 
-        UserInfoEntity userInfoEntity = userInfoRepository.findByUserIdContains(code);
+        UserInfoEntity userInfoEntity = userInfoRepository.findByUserIdLike(code);
         if (userInfoEntity == null) {
             log.warn("查無此user:" + code);
             return false;
@@ -77,11 +77,11 @@ public class UserService {
         }
     }
 
-    public boolean updateUserToken(String code, String accessToken) {
+    public boolean updateUserToken(String userCode, String accessToken) {
 
-        UserInfoEntity userInfoEntity = userInfoRepository.findByUserIdContains(code);
+        UserInfoEntity userInfoEntity = userInfoRepository.findByUserIdLike(userCode);
         if (userInfoEntity == null) {
-            log.warn("查無此user:" + code);
+            log.warn("查無此user:" + userCode);
             return false;
         }
         try {
@@ -98,7 +98,7 @@ public class UserService {
 
     public String addAdmin(String code) {
 
-        UserInfoEntity userInfoEntity = userInfoRepository.findByUserIdContains(code);
+        UserInfoEntity userInfoEntity = userInfoRepository.findByUserIdLike(code);
         if (userInfoEntity == null) {
             log.warn("查無此user:" + code);
             return null;
@@ -129,14 +129,15 @@ public class UserService {
         userInfoEntity.setUserId(userId);
         userInfoEntity.setNotify(false);
         userInfoEntity.setApprove(false);
+        userInfoEntity.setAdmin(false);
         userInfoEntity.setUpdateDate(new Date());
         userInfoRepository.save(userInfoEntity);
         updateUserInfoList();
     }
 
     public List<String> getUserNotifyList() {
-        List<UserInfoEntity> userInfoEntities = userInfoRepository.findByNotifyAndApprove(true, true);
-        return userInfoEntities.stream().map(UserInfoEntity::getAccessToken).filter(a-> a != null).collect(Collectors.toList());
+        List<UserInfoEntity> userInfoEntities = userInfoRepository.findByNotifyTrueAndApproveTrueAndAccessTokenIsNotNull();
+        return userInfoEntities.stream().map(UserInfoEntity::getAccessToken).collect(Collectors.toList());
     }
 
 

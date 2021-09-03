@@ -22,7 +22,6 @@ public class LineNotifyController {
 
         assert(StringUtils.equals(req.getHeader("referer"), "https://notify-bot.line.me/"));
         boolean succ = lineNotifyService.callBack(code, state);
-
         if (succ)
             return  "恭喜完成 LINE Notify 連動！請關閉此視窗。";
         else
@@ -32,10 +31,7 @@ public class LineNotifyController {
     @GetMapping(value = "/notify/auth")
     @ResponseBody
     public String notifyAuth(HttpServletRequest req, @RequestParam String userId) {
-
-        String authLink = lineNotifyService.generateAuthLink(userId);
-
-        return  authLink;
+        return lineNotifyService.generateAuthLink(userId);
     }
 
     @GetMapping(value = "/notify/test")

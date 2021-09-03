@@ -37,7 +37,7 @@ public class ScheduledTaskService {
     private UserService userService;
 
     @Autowired
-    private LineNotifyService lineNotifyServic;
+    private LineNotifyService lineNotifyService;
 
     @Value("${line.bot.push.enable:false}")
     private String pushEnable;
@@ -57,7 +57,7 @@ public class ScheduledTaskService {
 
     @Scheduled(cron=  "0 */10 * ? * *")
     public void test() {
-        lineNotifyServic.sendMessages(userService.getUserNotifyList(), "TEST 每10分鐘一次的推播~", true);
+        lineNotifyService.sendMessages(userService.getUserNotifyList(), "TEST 每10分鐘一次的推播~", true);
     }
 
     @Scheduled(cron=  "0 */3 * ? * *")
@@ -89,8 +89,10 @@ public class ScheduledTaskService {
         }
         if (kingWillAppear && BooleanUtils.toBoolean(pushEnable)) {
             message = new TextMessage(FIRE + "出王通知" + msg);
+
+            // 推播訊息 兩種選擇: 1. 用LINE Bot push message   2. 使用LINE Notify
 //            lineBotService.pushMsg(userService.getUserInfoList(), message);
-            lineNotifyServic.sendMessages(userService.getUserInfoList(), FIRE + "出王通知" + msg, true);
+            lineNotifyService.sendMessages(userService.getUserInfoList(), FIRE + "出王通知" + msg, true);
         }
     }
 
