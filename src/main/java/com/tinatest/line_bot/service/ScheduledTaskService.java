@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
 import java.text.SimpleDateFormat;
@@ -47,6 +48,7 @@ public class ScheduledTaskService {
         log.error(String.format(">>>>>>>>>> 推播功能 : %s <<<<<<<<<<", (BooleanUtils.toBoolean(pushEnable) ? "開啟" : "關閉")));
         updateKingInfoList();
         checkTask();
+        test();
     }
 
     @Scheduled(cron=  "0 */50 * ? * *")
@@ -57,13 +59,22 @@ public class ScheduledTaskService {
 
     @Scheduled(cron=  "0 */10 * ? * *")
     public void test() {
-        lineNotifyService.sendMessages(userService.getUserNotifyList(), "TEST 每10分鐘一次的推播~", true);
+        if (!CollectionUtils.isEmpty(userService.getUserNotifyList())) {
+            lineNotifyService.sendMessages(userService.getUserNotifyList(), "TEST 每10分鐘一次的推播~", true);
+        } else {
+            log.info("[TEST] 沒有使用者需要通知 ! ");
+        }
+
     }
 
     @Scheduled(cron=  "0 */3 * ? * *")
     public void checkTask() {
         Date now = new Date();
-//        log.info("================> checkTask Date:" + now);
+
+        if (CollectionUtils.isEmpty(userService.getUserNotifyList())) {
+            log.info("沒有使用者需要通知 ! ================> checkTask Date:" + now);
+            return;
+        }
         boolean kingWillAppear = false;
         message = null;
         msg = "";
@@ -88,15 +99,20 @@ public class ScheduledTaskService {
             lineageService.updateNextAppear(needUpdates, now);
         }
         if (kingWillAppear && BooleanUtils.toBoolean(pushEnable)) {
-            message = new TextMessage(FIRE + "出王通知" + msg);
-
-            // 推播訊息 兩種選擇: 1. 用LINE Bot push message   2. 使用LINE Notify
-//            lineBotService.pushMsg(userService.getUserInfoList(), message);
-            lineNotifyService.sendMessages(userService.getUserInfoList(), FIRE + "出王通知" + msg, true);
+            goPushMessage();
         }
     }
 
     private String getMissStr(Integer missCount) {
         return (missCount == null || missCount == 0) ? "" : Common.CRY + "您已錯過 : " + missCount + "次了\n";
+    }
+
+    private void goPushMessage() {
+        // 推播訊息 兩種選擇: 1. 用LINE Bot push message   2. 使用LINE Notify
+//            1.
+//            message = new TextMessage(FIRE + "出王通知" + msg);
+//            lineBotService.pushMsg(userService.getUserInfoList(), message);
+//            2.
+        lineNotifyService.sendMessages(userService.getUserInfoList(), FIRE + "出王通知" + msg, true);
     }
 }

@@ -17,5 +17,4 @@ public interface LineageKingInfoRepository extends CrudRepository<LineageKingInf
     @Query(value="SELECT * FROM lineage_king_info WHERE next_appear >= ?1 ORDER BY next_appear", nativeQuery = true)
     List<LineageKingInfoEntity> getAppearFromNow(Date date);
 
-    List<LineageKingInfoEntity> findTop10ByOrderByNextAppear();
 }

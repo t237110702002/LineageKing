@@ -34,6 +34,9 @@ public class UserInfoEntity {
 
     @Column(name = "access_token") //LINE Notify access_token
     private String accessToken;
+//
+//    @Column(name = "action")
+//    private String action;
 
     @Column(name = "update_date")
     private Date updateDate;
@@ -101,6 +104,14 @@ public class UserInfoEntity {
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
     }
+//
+//    public String getAction() {
+//        return action;
+//    }
+//
+//    public void setAction(String action) {
+//        this.action = action;
+//    }
 
     public Date getUpdateDate() {
         return updateDate;

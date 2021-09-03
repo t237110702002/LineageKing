@@ -54,6 +54,9 @@ public class LineBotService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private LineNotifyService lineNotifyService;
+
 //    @PostConstruct
 //    public void init(){
 ////        pushPicMsg();
@@ -74,19 +77,22 @@ public class LineBotService {
         System.out.println(botApiResponse);
     }
 
-    public boolean followEvent(FollowEvent event) {
-        try {
-            userService.createUser(event.getSource().getSenderId());
-            return true;
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return false;
-        }
+    public boolean followEvent(String userId, String replyToken) {
+        return initialCreate(userId, replyToken);
     }
 
-    public boolean joinEvent(JoinEvent event) {
+    public boolean joinEvent(String senderId, String replyToken) {
+       return initialCreate(senderId, replyToken);
+    }
+
+    private boolean initialCreate(String userId, String replyToken) {
         try {
-            userService.createUser(event.getSource().getSenderId());
+            userService.createUser(userId);
+            log.info("=============> 建立user:" + userId);
+            String authLink = lineNotifyService.generateAuthLink(userId);
+            log.info("-----authLink----->" + authLink);
+            replyText(replyToken, String.format("Hi 我是天堂打王小幫手！請先點擊下方連結完成連動並繳費，完成後告知管理員代碼(%s)以啟用通知功能！%s\n %s ",
+                    getCode(userId), Common.SMILE, authLink));
             return true;
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -116,7 +122,7 @@ public class LineBotService {
                 String userId = userService.addAdmin(code);
                 if (userId != null) {
                     msg = new TextMessage("新增成功: " + code);
-//                    client.pushMessage(new PushMessage(userId, new TextMessage(Common.ALERT + "您已升級為管理員！\n" + Common.COMMAND_ADMIN)));
+                    client.pushMessage(new PushMessage(userId, new TextMessage(Common.ALERT + "您已升級為管理員！\n" + Common.COMMAND_ADMIN)));
                 } else {
                     msg = new TextMessage("新增失敗: " + code);
                 }
@@ -126,10 +132,10 @@ public class LineBotService {
         } else if (receivedMessage.startsWith("activate")) {
             if (userService.isUserAdmin(event.getSource().getUserId())) {
                 String code = StringUtils.substringAfter(receivedMessage, "activate").trim();
-                boolean success = userService.activateUser(code);
-                if (success) {
+                String userId = userService.activateUser(code);
+                if (userId != null) {
                     msg = new TextMessage("啟用成功: " + code);
-//                    client.pushMessage(new PushMessage(code, new TextMessage(Common.ALERT + "小幫手啟用成功! 請使用help查看指令集!")));
+                    client.pushMessage(new PushMessage(userId, new TextMessage(Common.ALERT + "小幫手啟用成功! 請使用help查看指令集!")));
                 } else {
                     msg = new TextMessage("啟用失敗: " + code);
                 }
@@ -137,7 +143,7 @@ public class LineBotService {
                 msg = new TextMessage("您無此權限！");
             }
         } else if (receivedMessage.startsWith("cool")) {
-            if (StringUtils.equals(event.getSource().getSenderId(), "Ud62a356eedbea86f5231532bae38da4c")) {
+            if (StringUtils.equals(event.getSource().getUserId(), "Ud62a356eedbea86f5231532bae38da4c")) {
                 msg = coolMsg();
             } else {
                 msg = new TextMessage("您無此權限！");
@@ -365,6 +371,10 @@ public class LineBotService {
        return FlexMessage.builder().altText("test").contents(bubble).build();
 
 //        client.pushMessage(new PushMessage("Ud62a356eedbea86f5231532bae38da4c", flexMessage));
+    }
+
+    private String getCode(String id) {  // 用於啟用的代碼
+        return StringUtils.substring(id, 1, 7);
     }
 
 }

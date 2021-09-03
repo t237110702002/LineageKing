@@ -49,7 +49,6 @@ public class LineNotifyService {
 		userTokens.forEach(token-> sendMessage(token, message, encoded));
 	}
 
-
 	public boolean sendMessage(String token, String message, boolean encoded) {
 		message = replaceProcess(message);
 		if (!encoded) {
@@ -193,7 +192,7 @@ public class LineNotifyService {
 			e.printStackTrace();
 		}
 
-		return result; //{"status":200,"message":"access_token is issued","access_token":"CBMtxYQgXGFHGabgdTAu7hakElQKf3LCoCHAB85VYIl"}
+		return result; //EX. {"status":200,"message":"access_token is issued","access_token":"CBMtxYQgXGFHGabgdTAu7hakElQKf3LCoCHAB85VYIl"}
 	}
 
 

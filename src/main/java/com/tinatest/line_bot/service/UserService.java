@@ -57,12 +57,12 @@ public class UserService {
         }
     }
 
-    public boolean activateUser(String code) {
+    public String activateUser(String code) {
 
         UserInfoEntity userInfoEntity = userInfoRepository.findByUserIdLike(code);
         if (userInfoEntity == null) {
             log.warn("查無此user:" + code);
-            return false;
+            return null;
         }
         try {
             userInfoEntity.setApprove(true);
@@ -70,10 +70,10 @@ public class UserService {
             userInfoEntity.setUpdateDate(new Date());
             userInfoRepository.save(userInfoEntity);
             updateUserInfoList();
-            return true;
+            return userInfoEntity.getUserId();
         } catch (Exception e) {
             log.error("啟用時發生錯誤: " + e.getMessage());
-            return false;
+            return null;
         }
     }
 
@@ -125,21 +125,23 @@ public class UserService {
     }
 
     public void createUser(String userId) {
-        UserInfoEntity userInfoEntity = new UserInfoEntity();
-        userInfoEntity.setUserId(userId);
-        userInfoEntity.setNotify(false);
-        userInfoEntity.setApprove(false);
-        userInfoEntity.setAdmin(false);
-        userInfoEntity.setUpdateDate(new Date());
-        userInfoRepository.save(userInfoEntity);
-        updateUserInfoList();
+        UserInfoEntity entity = userInfoRepository.findByUserId(userId);
+        if (entity == null) {
+            UserInfoEntity userInfoEntity = new UserInfoEntity();
+            userInfoEntity.setUserId(userId);
+            userInfoEntity.setNotify(false);
+            userInfoEntity.setApprove(false);
+            userInfoEntity.setAdmin(false);
+            userInfoEntity.setUpdateDate(new Date());
+            userInfoRepository.save(userInfoEntity);
+            updateUserInfoList();
+        }
     }
 
     public List<String> getUserNotifyList() {
         List<UserInfoEntity> userInfoEntities = userInfoRepository.findByNotifyTrueAndApproveTrueAndAccessTokenIsNotNull();
         return userInfoEntities.stream().map(UserInfoEntity::getAccessToken).collect(Collectors.toList());
     }
-
 
     public void updateUserInfoList() {
         userInfoList = getUserNotifyList();
