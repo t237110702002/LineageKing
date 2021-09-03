@@ -11,11 +11,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -109,16 +107,15 @@ public class LineNotifyService {
 	public String generateAuthLink(String userId) {
 		try {
 			String strUrl = "https://notify-bot.line.me/oauth/authorize";
-
 			String state = URLEncoder.encode(userId, "UTF-8");
 			String clientIdValue = URLEncoder.encode(clientId, "UTF-8");
 			String redirectUrlValue = URLEncoder.encode(redirectUri, "UTF-8");
 			String data = "response_type=code" + "&scope=notify" + "&state="+state  + "&client_id=" + clientIdValue + "&redirect_uri=" + redirectUrlValue;
 			return strUrl + "?" + data;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
-		return null;
+		return "";
 	}
 
 	private String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException {

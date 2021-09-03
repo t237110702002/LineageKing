@@ -2,6 +2,7 @@ package com.tinatest.line_bot.controller;
 
 import com.linecorp.bot.client.LineMessagingClient;
 import com.tinatest.line_bot.service.LineBotService;
+import com.tinatest.line_bot.service.LineNotifyService;
 import com.tinatest.line_bot.service.LineageService;
 import com.tinatest.line_bot.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,9 @@ public class TestController {
 
     @Autowired
     private LineBotService lineBotService;
+
+    @Autowired
+    private LineNotifyService lineNotifyService;
 
     @GetMapping
     public ResponseEntity printHello() {
