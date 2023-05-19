@@ -19,4 +19,6 @@ public interface UserInfoRepository extends CrudRepository<UserInfoEntity, Strin
     UserInfoEntity findByAdminAndUserId(boolean admin, String userId);
 
     UserInfoEntity findByUserId(String userId);
+
+    List<UserInfoEntity> findByUserLineIdIsNotNull();
 }

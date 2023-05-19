@@ -20,6 +20,7 @@ import com.linecorp.bot.model.message.flex.component.Button;
 import com.linecorp.bot.model.message.flex.component.Button.ButtonHeight;
 import com.linecorp.bot.model.message.flex.component.Button.ButtonStyle;
 import com.linecorp.bot.model.message.flex.component.Image;
+import com.linecorp.bot.model.message.flex.component.Image.ImageAspectMode;
 import com.linecorp.bot.model.message.flex.component.Image.ImageSize;
 import com.linecorp.bot.model.message.flex.component.Text;
 import com.linecorp.bot.model.message.flex.component.Text.TextWeight;
@@ -100,24 +101,26 @@ public class LineBotService {
         }
     }
 
-    public BotApiResponse reply(MessageEvent<TextMessageContent> event) throws  ExecutionException, InterruptedException {
-        String receivedMessage = event.getMessage().getText();
-        receivedMessage = receivedMessage.toLowerCase();
+    public void reply(MessageEvent<TextMessageContent> event) throws InterruptedException {
+        String userIdEvent = event.getSource().getUserId();
+        String senderIdEvent = event.getSource().getSenderId();
+        String receivedMessageOri = event.getMessage().getText();
+        String receivedMessage = receivedMessageOri.toLowerCase();
         receivedMessage = receivedMessage.trim();
         String replyToken = event.getReplyToken();
-        Message msg;
+        Message msg= new TextMessage(" ");
 
         if (receivedMessage.startsWith("push:")) {
-            if (userService.isUserAdmin(event.getSource().getUserId())) {
+            if (userService.isUserAdmin(userIdEvent)) {
                 String pushMsg = StringUtils.substringAfter(receivedMessage, "push:").trim();
                 Broadcast broadcast = new Broadcast(new TextMessage(pushMsg));
-                return client.broadcast(broadcast).get();
+                client.broadcast(broadcast);
             } else {
                 msg = new TextMessage("您無此權限！");
             }
 
         } else if (receivedMessage.startsWith("add admin")) {
-            if (StringUtils.equals(event.getSource().getSenderId(), "Ud62a356eedbea86f5231532bae38da4c")) {
+            if (StringUtils.equals(senderIdEvent, "Ud62a356eedbea86f5231532bae38da4c")) {
                 String code = StringUtils.substringAfter(receivedMessage, "add admin").trim();
                 String userId = userService.addAdmin(code);
                 if (userId != null) {
@@ -130,7 +133,7 @@ public class LineBotService {
                 msg = new TextMessage("您無此權限！");
             }
         } else if (receivedMessage.startsWith("activate")) {
-            if (userService.isUserAdmin(event.getSource().getUserId())) {
+            if (userService.isUserAdmin(userIdEvent)) {
                 String code = StringUtils.substringAfter(receivedMessage, "activate").trim();
                 String userId = userService.activateUser(code);
                 if (userId != null) {
@@ -143,25 +146,39 @@ public class LineBotService {
                 msg = new TextMessage("您無此權限！");
             }
         } else if (receivedMessage.startsWith("cool")) {
-            if (StringUtils.equals(event.getSource().getUserId(), "Ud62a356eedbea86f5231532bae38da4c")) {
+            if (StringUtils.equals(userIdEvent, "Ud62a356eedbea86f5231532bae38da4c")) {
                 msg = coolMsg();
+            } else if (StringUtils.equals(userIdEvent, "U4d62b305e6b5c038adb81259e02f33e1")) {
+                msg = coolMsgForEric();
             } else {
                 msg = new TextMessage("您無此權限！");
             }
+        } else if (receivedMessage.startsWith("add user")) {
+            String result = userService.addUserProfile(userIdEvent, receivedMessageOri);
+            msg = new TextMessage(result);
+
+        } else if (receivedMessage.startsWith("show user")) {
+            String result = userService.getUserInfoAllList();
+            msg = new TextMessage(result);
+
         } else {
-            if (userService.isUserApproved(event.getSource().getSenderId())) {
-                msg = getMsg(receivedMessage, event.getSource().getUserId(), event.getSource().getSenderId());
+            if (userService.isUserApproved(senderIdEvent)) {
+                msg = getMsg(receivedMessage, userIdEvent, senderIdEvent);
             } else {
                 msg = new TextMessage(Common.ALERT + "抱歉！小幫手功能尚未啟用！");
             }
         }
-        return client.replyMessage(new ReplyMessage(replyToken, msg)).get();
+        try {
+            client.replyMessage(new ReplyMessage(replyToken, msg)).get();
+        } catch (ExecutionException e) {
+            log.error("receivedMessageOri  =====> " + receivedMessageOri);
+        }
     }
 
     public Message getMsg(String receivedMessage, String userId, String senderId) {
         String keyword = String.format(receivedMessage);
 
-        Message resultMsg = new TextMessage("");
+        Message resultMsg = new TextMessage(" ");
         String messages = "";
 
         if (receivedMessage.startsWith("k ")) {
@@ -188,6 +205,9 @@ public class LineBotService {
             case "hey":
 //                messages = Common.HI + "Hi Hi Hi 我是Tina小幫手";
                 resultMsg = helloMsg();
+                break;
+            case "...":
+                messages = "...";
                 break;
             case "enable":
                 messages = userService.updateUserNotify(senderId, true);
@@ -233,7 +253,7 @@ public class LineBotService {
                 messages = lineageService.command_default(receivedMessage);
                 break;
         }
-        if (StringUtils.isNotBlank(messages)) {
+        if (StringUtils.isNoneEmpty(messages)) {
             return new TextMessage(messages);
         }
         return resultMsg;
@@ -252,7 +272,6 @@ public class LineBotService {
     public void pushMsg(List<String> ids, Message message) {
         ids.forEach(id -> client.pushMessage(new PushMessage(id, message)));
     }
-
 
     public void pushPicMsg() {
 
@@ -305,6 +324,55 @@ public class LineBotService {
         BubbleSize size;
 
         Bubble bubble = Bubble.builder().direction(direction).hero(hero).body(body).build();
+        return FlexMessage.builder().altText("Welcome Message").contents(bubble).build();
+    }
+
+    public FlexMessage coolMsgForEric() {
+
+        FlexDirection direction = FlexDirection.LTR;
+
+        BubbleStyles styles = BubbleStyles.builder().footer(BlockStyle.builder().backgroundColor("#639594").build()).build();
+
+        Image hero = Image.builder().url(URI.create("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQezre2Ubu4g8XpFprmNfyiNUL0yUAmeQNYXw&usqp=CAU"))
+                .aspectMode(ImageAspectMode.Cover).aspectRatio(61, 20).size(ImageSize.FULL_WIDTH).build();
+
+
+        Image img1 = Image.builder().url(URI.create("https://miro.medium.com/max/1400/1*0pVt2nv81SAUIWoP7OcHow.jpeg")).build();
+
+        Image img2 = Image.builder().url(URI.create("https://i.pinimg.com/564x/bc/c8/86/bcc886a85593c2cd4b1944494f74a6c7.jpg")).build();
+
+
+        Box header = Box.builder()
+                .layout(FlexLayout.VERTICAL).build();
+
+
+        Box images = Box.builder()
+                .layout(FlexLayout.HORIZONTAL)
+                .contents(img1, img2)
+                .build();
+
+        Box body = Box.builder()
+                .layout(FlexLayout.VERTICAL)
+                .contents(Text.builder().text("Hey Eric！\uD83D\uDC99 ").weight(TextWeight.BOLD).size("xl").build(),
+                        Text.builder().text("✨ 酷酷的東西 ✨").margin(FlexMarginSize.XL).build(),
+                        images)
+                .build();
+
+        URIAction action = new URIAction("Fantasy Baseball", URI.create("https://baseball.fantasysports.yahoo.com/"), null);
+        URIAction action2 = new URIAction("Fantasy Football", URI.create("https://football.fantasysports.yahoo.com/"), null);
+
+        Box footer = Box.builder()
+                .layout(FlexLayout.VERTICAL)
+                .contents(
+                        Button.builder().height(ButtonHeight.SMALL).style(ButtonStyle.PRIMARY).action(action).color("#d8cea6").build(),
+                        Button.builder().height(ButtonHeight.SMALL).style(ButtonStyle.PRIMARY).action(action2).color("#d8cea6").build()
+                )
+                .backgroundColor("#778ca6")
+                .spacing(FlexMarginSize.SM)
+                .build();
+        BubbleSize size;
+
+        Bubble bubble = Bubble.builder().direction(direction).hero(hero).body(body).footer(footer).build();
         return FlexMessage.builder().altText("Welcome Message").contents(bubble).build();
     }
 

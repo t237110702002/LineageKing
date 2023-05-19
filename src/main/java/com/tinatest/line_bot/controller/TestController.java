@@ -1,6 +1,7 @@
 package com.tinatest.line_bot.controller;
 
 import com.linecorp.bot.client.LineMessagingClient;
+import com.tinatest.line_bot.service.LineBotApiService;
 import com.tinatest.line_bot.service.LineBotService;
 import com.tinatest.line_bot.service.LineNotifyService;
 import com.tinatest.line_bot.service.LineageService;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -39,6 +41,9 @@ public class TestController {
     @Autowired
     private LineNotifyService lineNotifyService;
 
+    @Autowired
+    private LineBotApiService lineBotApiService;
+
     @GetMapping
     public ResponseEntity printHello() {
         LocalDateTime now = LocalDateTime.now();
@@ -50,6 +55,11 @@ public class TestController {
     public List<String> test() {
         List<String> userNotifyList = userService.getUserNotifyList();
         return userNotifyList;
+    }
+
+    @GetMapping(value = "/user")
+    public String testUserProfile(HttpServletRequest req, @RequestParam String userId) {
+        return lineBotApiService.getUserProfile(userId).toString();
     }
 
 }

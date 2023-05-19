@@ -82,7 +82,7 @@ public class ScheduledTaskService {
         for (KingInfo kingInfo: lineageService.getKingInfoList()) {
             if (kingInfo.getNextAppear() != null) {
                 int min = (int) ((kingInfo.getNextAppear().getTime() - now.getTime()) / (1000*60));
-                if (min > 0 && min < 5) {
+                if (min > 3 && min < 5) {
                     log.info(String.format("%s --> 下次出現時間: %s",kingInfo.getName(), Common.sdFormat.format(kingInfo.getNextAppear())));
                     String randomStr = kingInfo.isRandom() ? "隨" : "必";
                     String missStr = getMissStr(kingInfo.getMissCount());
@@ -113,6 +113,6 @@ public class ScheduledTaskService {
 //            message = new TextMessage(FIRE + "出王通知" + msg);
 //            lineBotService.pushMsg(userService.getUserInfoList(), message);
 //            2.
-        lineNotifyService.sendMessages(userService.getUserInfoList(), FIRE + "出王通知" + msg, true);
+        lineNotifyService.sendMessages(userService.getUserInfoList(), "\n" + FIRE + "出王通知" + msg, true);
     }
 }

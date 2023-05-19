@@ -30,6 +30,8 @@ import java.util.stream.Collectors;
 public class LineNotifyService {
 
 	private static final String strEndpoint = "https://notify-api.line.me/api/notify";
+	private static final String getTokenEndpoint = "https://notify-bot.line.me/oauth/token";
+	private static final String authorizeEndpoint = "https://notify-bot.line.me/oauth/authorize";
 	public static final String wrap = "%0D%0A";
 
 	@Autowired
@@ -105,12 +107,11 @@ public class LineNotifyService {
 
 	public String generateAuthLink(String userId) {
 		try {
-			String strUrl = "https://notify-bot.line.me/oauth/authorize";
 			String state = URLEncoder.encode(userId, "UTF-8");
 			String clientIdValue = URLEncoder.encode(clientId, "UTF-8");
 			String redirectUrlValue = URLEncoder.encode(redirectUri, "UTF-8");
 			String data = "response_type=code" + "&scope=notify" + "&state="+state  + "&client_id=" + clientIdValue + "&redirect_uri=" + redirectUrlValue;
-			return strUrl + "?" + data;
+			return authorizeEndpoint + "?" + data;
 		} catch (Exception e) {
 			log.error(e.getMessage());
 		}
@@ -155,8 +156,7 @@ public class LineNotifyService {
 		String result = null;
 
 		try {
-			String strUrl = "https://notify-bot.line.me/oauth/token";
-			URL url = new URL(strUrl);
+			URL url = new URL(getTokenEndpoint);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("POST");
 			connection.addRequestProperty("Content-Type", "application/x-www-form-urlencoded");
